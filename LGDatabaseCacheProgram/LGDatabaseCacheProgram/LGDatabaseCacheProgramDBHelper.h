@@ -15,9 +15,14 @@ extern NSString * const CACHE_APPVERSION;
 
 @interface LGDatabaseCacheProgramDBHelper : NSObject
 
-+ (void)insertDataForNewsClassificationModelName:(NSString *)modelName
-                                      sourceData:(NSArray *)arrayForData
-                                             suc:(void (^)(void))suc
-                                             fai:(void (^)(void))fai;
+- (void)setMaxCacheNumber:(NSInteger)maxCacheNumber;
+
+///插入新数据
++ (void)lgDB_InsertDataWithModelName:(NSString *)modelName
+                          sourceData:(NSArray *)arrayForData
+                                 suc:(void (^)(void))suc
+                                 fai:(void (^)(void))fai;
+
+
 
 @end

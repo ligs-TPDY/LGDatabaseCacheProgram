@@ -16,7 +16,8 @@ NSString * const CACHEUSER = @"Cache_User.db";
 NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
 
 @interface LGDatabaseCacheProgramDBHelper ()
-@property(nonatomic,strong)FMDatabaseQueue *queue;
+@property (nonatomic,strong) FMDatabaseQueue *queue;
+@property (nonatomic,assign) NSInteger max_CacheNunber;
 @end
 
 @implementation LGDatabaseCacheProgramDBHelper
@@ -30,6 +31,10 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     });
     return sharedDatabaseCacheProgram;
 }
+- (void)setMaxCacheNumber:(NSInteger)maxCacheNumber
+{
+    _max_CacheNunber = maxCacheNumber;
+}
 - (instancetype)init
 {
     self = [super init];
@@ -39,6 +44,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         NSString*path=[paths objectAtIndex:0];
         NSString *db = [path stringByAppendingPathComponent:CACHEUSER];
         self.queue = [FMDatabaseQueue databaseQueueWithPath:db];
+        self.max_CacheNunber = 300;
     }
     return self;
 }
@@ -63,7 +69,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             
             if (cache_App_Version == nil) {///安装APP
                 ///新建表格
-                [self creatTableForNewsClassificationModelName:modelName suc:^{
+                [self creatTableWithModelName:modelName suc:^{
                     [userDefaults setObject:app_Version forKey:CACHE_APPVERSION];
                     [userDefaults synchronize];
                     suc();
@@ -138,9 +144,9 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     });
 }
 ///创建当前用户对应的表格
-+ (void)creatTableForNewsClassificationModelName:(NSString *)modelName
-                                             suc:(void (^)(void))suc
-                                             fai:(void (^)(void))fai;
++ (void)creatTableWithModelName:(NSString *)modelName
+                            suc:(void (^)(void))suc
+                            fai:(void (^)(void))fai;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     NSArray *arrayForPropertyNames = [databaseCache getAllPropertyNames:modelName];
@@ -164,10 +170,10 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     });
 }
 ///插入数据（增加数据）
-+ (void)insertDataForNewsClassificationModelName:(NSString *)modelName
-                                      sourceData:(NSArray *)arrayForData
-                                             suc:(void (^)(void))suc
-                                             fai:(void (^)(void))fai;
++ (void)lgDB_InsertDataWithModelName:(NSString *)modelName
+                          sourceData:(NSArray *)arrayForData
+                                 suc:(void (^)(void))suc
+                                 fai:(void (^)(void))fai;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     ///参数有效性检测
@@ -241,8 +247,8 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                             totalCount = [results intForColumnIndex:0];
                         }
                         [results close];
-                        if (totalCount >= 300) {
-                            [self deleteDataForNewsClassificationModelName:modelName WhenDataMore300Count:totalCount-300];
+                        if (totalCount >= databaseCache.max_CacheNunber) {
+                            [self deleteDataWithModelName:modelName count:totalCount-databaseCache.max_CacheNunber];
                         }
                         dispatch_async(dispatch_get_main_queue(), ^{suc();});}
                     else{NSLog(@"insert Data failure"); dispatch_async(dispatch_get_main_queue(), ^{fai();});};
@@ -252,8 +258,8 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     }
 }
 ///当数据总量超过300时，删除多余的数据
-+ (void)deleteDataForNewsClassificationModelName:(NSString *)modelName
-                            WhenDataMore300Count:(NSInteger)count;
++ (void)deleteDataWithModelName:(NSString *)modelName
+                          count:(NSInteger)count;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -264,12 +270,11 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             ///删除与新数据等长的数据
             NSString *deleteContentSQL = [NSString stringWithFormat:@"delete from %@ where RetrievalId>=%ld ORDER BY RetrievalId asc limit %ld",modelName,totalCount,count];
             BOOL result = [db executeUpdate:deleteContentSQL];
-            if (result) {NSLog(@"deleteDataFor==%@==WhenDataMore300CountSuc",modelName);
-            }else{NSLog(@"deleteDataFor==%@==WhenDataMore300Countfai",modelName);}
+            if (result) {NSLog(@"deleteData==%@==Suc",modelName);
+            }else{NSLog(@"deleteData==%@==fai",modelName);}
         }];
     });
 }
-
 
 
 
