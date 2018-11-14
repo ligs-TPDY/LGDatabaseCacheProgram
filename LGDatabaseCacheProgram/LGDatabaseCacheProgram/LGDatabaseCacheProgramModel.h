@@ -15,7 +15,7 @@
 
 @interface LGDatabaseCacheProgramModel : NSObject
 ///用户名字
-@property (nonatomic,strong) NSString *userName2;
+@property (nonatomic,strong) NSString *userName;
 ///用户年龄
 @property (nonatomic,strong) NSNumber *userAge;
 ///用户过往成绩

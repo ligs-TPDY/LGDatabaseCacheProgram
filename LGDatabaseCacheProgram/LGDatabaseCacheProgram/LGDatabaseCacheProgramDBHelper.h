@@ -13,8 +13,21 @@ extern NSString * const CACHEUSER;
 ///缓存当前APP版本号，用于数据库表的升级
 extern NSString * const CACHE_APPVERSION;
 
-@interface LGDatabaseCacheProgramDBHelper : NSObject
+typedef NS_ENUM(NSInteger,SortWay)
+{
+    ///0:升序
+    SortWay_Asc          = 0,
+    ///1:降序
+    SortWay_Desc         = 1,
+    ///2:==
+    SortWay_Equal        = 2,
+};
 
+
+@interface LGDatabaseCacheProgramDBHelper : NSObject
+/**
+    设置最大缓存数量，默认300条。
+ */
 - (void)setMaxCacheNumber:(NSInteger)maxCacheNumber;
 
 ///插入新数据
@@ -22,6 +35,21 @@ extern NSString * const CACHE_APPVERSION;
                           sourceData:(NSArray *)arrayForData
                                  suc:(void (^)(void))suc
                                  fai:(void (^)(void))fai;
+
+#pragma mark - --根据条件获取缓存数据--
++ (void)lgDB_SelectDataWithModelName:(NSString *)modelName///名字
+                       searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
+                         searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
+                           ascOrDesc:(SortWay)sortWay///排序方式
+                              number:(NSInteger)number///条数
+                                 suc:(void (^)(BOOL haveCache,NSArray *array))suc;
+#pragma mark - --根据条件删除数据--
++ (void)lgDB_DeleteDataWithModelName:(NSString *)modelName///名字
+                       searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
+                         searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
+                           ascOrDesc:(SortWay)sortWay///排序方式
+                              number:(NSInteger)number///条数
+                                 suc:(void (^)())suc;
 
 
 

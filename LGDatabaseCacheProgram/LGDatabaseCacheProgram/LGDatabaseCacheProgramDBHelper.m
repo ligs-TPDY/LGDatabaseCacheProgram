@@ -257,7 +257,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         } fai:^{dispatch_async(dispatch_get_main_queue(), ^{fai();});}];
     }
 }
-///当数据总量超过300时，删除多余的数据
+///当数据总量超过上限时，删除多余的数据
 + (void)deleteDataWithModelName:(NSString *)modelName
                           count:(NSInteger)count;
 {
@@ -270,13 +270,162 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             ///删除与新数据等长的数据
             NSString *deleteContentSQL = [NSString stringWithFormat:@"delete from %@ where RetrievalId>=%ld ORDER BY RetrievalId asc limit %ld",modelName,totalCount,count];
             BOOL result = [db executeUpdate:deleteContentSQL];
-            if (result) {NSLog(@"deleteData==%@==Suc",modelName);
-            }else{NSLog(@"deleteData==%@==fai",modelName);}
+            if (result) {NSLog(@"数据总量超过上限：deleteData==%@==Suc",modelName);
+            }else{NSLog(@"数据总量超过上限：deleteData==%@==fai",modelName);}
         }];
     });
 }
-
-
+#pragma mark - --根据条件获取缓存数据--
++ (void)lgDB_SelectDataWithModelName:(NSString *)modelName///名字
+                       searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
+                         searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
+                           ascOrDesc:(SortWay)sortWay///排序方式
+                              number:(NSInteger)number///条数
+                                 suc:(void (^)(BOOL haveCache,NSArray *array))suc;
+{
+    LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [databaseCache.queue inDatabase:^(FMDatabase *db) {
+            NSString *keyword = nil;
+            if (searchKeyword == nil || searchKeyword.length == 0) {
+                keyword = @"RetrievalId";
+            }else{
+                keyword = searchKeyword;
+            }
+            
+            NSInteger finallySearchValue = 0;
+            {///获取到最大最小值
+                NSString *maxOrMin = nil;
+                if (sortWay == SortWay_Asc) {//升序
+                    maxOrMin = @"min";
+                }
+                if (sortWay == SortWay_Desc) {//降序
+                    maxOrMin = @"max";
+                }
+                NSString *SQL = [NSString stringWithFormat:@"select %@(%@) from %@",maxOrMin,keyword,modelName];
+                finallySearchValue = [db intForQuery:SQL];
+            }
+            
+            if (searchValue != 0) {///如果设置了值，则以设置值为准
+                finallySearchValue = searchValue;
+            }
+            
+            NSString *ascOrDesc = nil;
+            NSString *mark = nil;
+            if (sortWay == SortWay_Asc) {//升序
+                ascOrDesc = @"asc";
+                mark = @">=";
+            }
+            if (sortWay == SortWay_Desc) {//降序
+                ascOrDesc = @"desc";
+                mark = @"<=";
+            }
+            if (sortWay == SortWay_Equal) {//==
+                ascOrDesc = @"desc";
+                mark = @"==";
+            }
+            
+            NSInteger finallyNumber = 0;
+            if (number <= 0) {//为0时，获取全部
+                FMResultSet *results = [db executeQuery:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@",modelName]];
+                int totalCount = 0;
+                if ([results next]) {
+                    totalCount = [results intForColumnIndex:0];
+                }
+                [results close];
+                finallyNumber = totalCount;
+            }else{
+                finallyNumber = number;
+            }
+            
+            NSString *selectSQL = [NSString stringWithFormat:@"select * from %@ where %@%@%ld ORDER BY %@ %@ limit %ld",modelName,keyword,mark,finallySearchValue,keyword,ascOrDesc,finallyNumber];
+            FMResultSet *result = [db executeQuery:selectSQL];
+            NSArray *arrayForModel = [databaseCache changeFMResultSetForModel:result Model:modelName];
+            if (arrayForModel.count != 0) {
+                NSLog(@"selectData==%@==Suc",modelName);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (suc) {
+                        suc(YES,arrayForModel);
+                    }
+                });
+            }else{
+                NSLog(@"selectData==%@==fai",modelName);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (suc) {
+                        suc(NO,nil);
+                    }
+                });
+            }
+        }];
+    });
+}
+#pragma mark - --根据条件删除数据--
++ (void)lgDB_DeleteDataWithModelName:(NSString *)modelName///名字
+                       searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
+                         searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
+                           ascOrDesc:(SortWay)sortWay///排序方式
+                              number:(NSInteger)number///条数
+                                 suc:(void (^)())suc;
+{
+    LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [databaseCache.queue inDatabase:^(FMDatabase *db) {
+            NSString *keyword = nil;
+            if (searchKeyword == nil || searchKeyword.length == 0) {
+                keyword = @"RetrievalId";
+            }else{
+                keyword = searchKeyword;
+            }
+            
+            NSInteger finallySearchValue = 0;
+            {///获取到最大最小值
+                NSString *maxOrMin = nil;
+                if (sortWay == SortWay_Asc) {//升序
+                    maxOrMin = @"min";
+                }
+                if (sortWay == SortWay_Desc) {//降序
+                    maxOrMin = @"max";
+                }
+                NSString *SQL = [NSString stringWithFormat:@"select %@(%@) from %@",maxOrMin,keyword,modelName];
+                finallySearchValue = [db intForQuery:SQL];
+            }
+            
+            if (searchValue != 0) {///如果设置了值，则以设置值为准
+                finallySearchValue = searchValue;
+            }
+            
+            NSString *ascOrDesc = nil;
+            NSString *mark = nil;
+            if (sortWay == SortWay_Asc) {//升序
+                ascOrDesc = @"asc";
+                mark = @">=";
+            }
+            if (sortWay == SortWay_Desc) {//降序
+                ascOrDesc = @"desc";
+                mark = @"<=";
+            }
+            if (sortWay == SortWay_Equal) {//==
+                ascOrDesc = @"desc";
+                mark = @"==";
+            }
+            
+            NSString *deleteContentSQL = nil;
+            if (number <= 0) {//为0时，删除所有数据。删除表格。
+                deleteContentSQL = [NSString stringWithFormat:@"DROP TABLE %@",modelName];
+            }else{
+                deleteContentSQL = [NSString stringWithFormat:@"delete from %@ where %@%@%ld ORDER BY %@ %@ limit %ld",modelName,keyword,mark,finallySearchValue,keyword,ascOrDesc,number];
+            }
+            BOOL result = [db executeUpdate:deleteContentSQL];
+            if (result) {NSLog(@"deleteData==%@==Suc",modelName);
+                if (number == 0) {
+                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                    [userDefaults removeObjectForKey:CACHE_APPVERSION];
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{if (suc) {suc();}});
+            }else{NSLog(@"deleteData==%@==Fai",modelName);}
+        }];
+    });
+}
 
 
 
