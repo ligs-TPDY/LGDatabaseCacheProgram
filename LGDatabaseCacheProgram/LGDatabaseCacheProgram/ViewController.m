@@ -41,8 +41,6 @@
     } fai:^{
 
     }];
-    
-    
 }
 
 - (LGDatabaseCacheProgramModel *)getModel{

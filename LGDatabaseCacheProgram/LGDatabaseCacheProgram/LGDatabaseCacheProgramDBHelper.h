@@ -49,7 +49,14 @@ typedef NS_ENUM(NSInteger,SortWay)
                          searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
                            ascOrDesc:(SortWay)sortWay///排序方式
                               number:(NSInteger)number///条数
-                                 suc:(void (^)())suc;
+                                 suc:(void (^)(void))suc;
+#pragma mark - --根据条件更改数据--
+- (void)updateDataWithModelName:(NSString *)modelName
+               accordingKeyword:(NSString *)searchKeyword///定位key
+                 accordingValue:(NSInteger)searchValue///定位Value
+                  updateKeyword:(NSString *)searchKeyword///待更新值的key
+                    updateValue:(NSInteger)searchValue///待更新的值
+                            suc:(void (^)(void))suc;
 
 
 
