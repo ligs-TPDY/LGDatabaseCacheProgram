@@ -37,6 +37,7 @@ typedef NS_ENUM(NSInteger,SortWay)
                                  fai:(void (^)(void))fai;
 
 #pragma mark - --根据条件获取缓存数据--
+///根据条件获取缓存数据
 + (void)lgDB_SelectDataWithModelName:(NSString *)modelName///名字
                        searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
                          searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
@@ -44,6 +45,7 @@ typedef NS_ENUM(NSInteger,SortWay)
                               number:(NSInteger)number///条数
                                  suc:(void (^)(BOOL haveCache,NSArray *array))suc;
 #pragma mark - --根据条件删除数据--
+///根据条件删除数据
 + (void)lgDB_DeleteDataWithModelName:(NSString *)modelName///名字
                        searchKeyword:(NSString *)searchKeyword///检索关键字,为空时默认用RetrievalId检索
                          searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
@@ -51,12 +53,13 @@ typedef NS_ENUM(NSInteger,SortWay)
                               number:(NSInteger)number///条数
                                  suc:(void (^)(void))suc;
 #pragma mark - --根据条件更改数据--
-- (void)updateDataWithModelName:(NSString *)modelName
-               accordingKeyword:(NSString *)searchKeyword///定位key
-                 accordingValue:(NSInteger)searchValue///定位Value
-                  updateKeyword:(NSString *)searchKeyword///待更新值的key
-                    updateValue:(NSInteger)searchValue///待更新的值
-                            suc:(void (^)(void))suc;
+///根据条件更改数据
++ (void)lgDB_UpdateDataWithModelName:(NSString *)modelName
+                    accordingKeyword:(NSString *)accordingKeyword///定位key
+                      accordingValue:(NSObject *)accordingValue///定位Value
+                       updateKeyword:(NSString *)updateKeyword///待更新值的key
+                         updateValue:(NSObject *)updateValue///待更新的值
+                                 suc:(void (^)(void))suc;
 
 
 

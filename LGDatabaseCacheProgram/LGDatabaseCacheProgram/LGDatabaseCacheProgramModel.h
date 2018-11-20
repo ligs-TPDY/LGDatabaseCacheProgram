@@ -24,6 +24,7 @@
 @property (nonatomic,strong) NSDictionary *userOtherInformmation;
 ///自定义对象缓存
 @property (nonatomic,strong) UserUISpecial *specialUI;
+@property (nonatomic,strong) UserUISpecial *specialUI2;
 @end
 
 /**

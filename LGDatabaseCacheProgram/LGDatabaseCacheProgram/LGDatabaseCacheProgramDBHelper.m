@@ -185,8 +185,12 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                     NSArray *arrayForDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
                     NSArray *arrayForPropertyName = [databaseCache getAllPropertyNames:modelName];
                     int count = 0;
-                    int markBlobIndex = 0;
+                    NSMutableArray *markBlobIndex = [[NSMutableArray alloc]init];
+                    
                     for (NSInteger i = arrayForDataCount-1; i>=0; i--) {
+                        
+                        [markBlobIndex removeAllObjects];
+                        
                         NSObject *model = arrayForData[i];
                         NSArray *arrayForPropertyValues = [databaseCache useModelPropertyNameGetValues:model];
                         
@@ -210,7 +214,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                                         [insertSQL appendFormat:@",'%@')",arrayForPropertyValues[j]];
                                     }else if ([arrayForDBPropertyType[j] isEqualToString:@"blob"]){
                                         [insertSQL appendFormat:@",?)"];
-                                        markBlobIndex = j;
+                                        [markBlobIndex addObject:@(j)];
                                     }else{
                                         [insertSQL appendFormat:@",%@)",arrayForPropertyValues[j]];
                                     }
@@ -219,7 +223,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                                         [insertSQL appendFormat:@"('%@'",arrayForPropertyValues[j]];
                                     }else if ([arrayForDBPropertyType[j] isEqualToString:@"blob"]){
                                         [insertSQL appendFormat:@"(?"];
-                                        markBlobIndex = j;
+                                        [markBlobIndex addObject:@(j)];
                                     }else{
                                         [insertSQL appendFormat:@"(%@",arrayForPropertyValues[j]];
                                     }
@@ -228,14 +232,34 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                                         [insertSQL appendFormat:@",'%@'",arrayForPropertyValues[j]];
                                     }else if ([arrayForDBPropertyType[j] isEqualToString:@"blob"]){
                                         [insertSQL appendFormat:@",?"];
-                                        markBlobIndex = j;
+                                        [markBlobIndex addObject:@(j)];
                                     }else{
                                         [insertSQL appendFormat:@",%@",arrayForPropertyValues[j]];
                                     }
                                 }
                             }
                         }
-                        BOOL result = [db executeUpdate:insertSQL,arrayForPropertyValues[markBlobIndex]];
+                        NSMutableString *mutStrBlob = [[NSMutableString alloc]init];
+                        for (int n = 0; n<markBlobIndex.count; n++) {
+                            NSInteger index = [[markBlobIndex objectAtIndex:n] integerValue];
+                            if (index < arrayForPropertyValues.count) {
+                                if (n!=markBlobIndex.count-1) {
+                                    [mutStrBlob appendFormat:@"%@,",arrayForPropertyValues[index]];
+                                }else{
+                                    [mutStrBlob appendFormat:@"%@",arrayForPropertyValues[index]];
+                                }
+                            }
+                        }
+                        BOOL result = NO;
+                        if (markBlobIndex.count == 1) {
+                            NSInteger index = [[markBlobIndex objectAtIndex:0] integerValue];
+                            result = [db executeUpdate:insertSQL,arrayForPropertyValues[index]];
+                        }
+                        if (markBlobIndex.count == 2) {
+                            NSInteger index0 = [[markBlobIndex objectAtIndex:0] integerValue];
+                            NSInteger index1 = [[markBlobIndex objectAtIndex:1] integerValue];
+                            result = [db executeUpdate:insertSQL,arrayForPropertyValues[index0],arrayForPropertyValues[index1]];
+                        }
                         if (result) {
                             count ++;
                         }
@@ -427,16 +451,133 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     });
 }
 #pragma mark - --根据条件更改数据--
-- (void)updateDataWithModelName:(NSString *)modelName
-               accordingKeyword:(NSString *)searchKeyword///定位key
-                 accordingValue:(NSInteger)searchValue///定位Value
-                  updateKeyword:(NSString *)searchKeyword///待更新值的key
-                    updateValue:(NSInteger)searchValue///待更新的值
-                            suc:(void (^)(void))suc
+///根据条件更改数据
++ (void)lgDB_UpdateDataWithModelName:(NSString *)modelName
+                    accordingKeyword:(NSString *)accordingKeyword///定位key
+                      accordingValue:(NSObject *)accordingValue///定位Value
+                       updateKeyword:(NSString *)updateKeyword///待更新值的key
+                         updateValue:(NSObject *)updateValue///待更新的值
+                                 suc:(void (^)(void))suc;
 {
+    LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     
+    NSArray *allPropertyNames = [databaseCache getAllPropertyNames:modelName];
+    NSArray *allDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
+    NSArray *allPropertyType = [databaseCache getModelPropertyType:modelName];
+    
+    NSInteger indexAccording = [allPropertyNames indexOfObject:accordingKeyword];
+    NSInteger indexUpdate = [allPropertyNames indexOfObject:updateKeyword];
+    
+    NSString *typeAccording = nil;
+    NSString *typeUpdate = nil;
+    if (indexAccording < allPropertyType.count) {
+        typeAccording = allPropertyType[indexAccording];
+    }
+    if (indexUpdate < allPropertyType.count) {
+        typeUpdate = allPropertyType[indexUpdate];
+    }
+    
+    NSObject *accordingVal = nil;
+    NSObject *updateVal = nil;
+    if ([typeAccording isEqualToString:@"@\"NSArray\""] || [typeAccording isEqualToString:@"@\"NSDictionary\""]) {
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:accordingValue
+                                                           options:NSJSONWritingPrettyPrinted error:nil];
+        accordingVal = [[NSString alloc] initWithData:jsonData
+                                             encoding:NSUTF8StringEncoding];
+    }else{
+        accordingVal = accordingValue;
+    }
+    if ([typeUpdate isEqualToString:@"@\"NSArray\""] || [typeUpdate isEqualToString:@"@\"NSDictionary\""]) {
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:updateValue
+                                                           options:NSJSONWritingPrettyPrinted error:nil];
+        updateVal = [[NSString alloc] initWithData:jsonData
+                                          encoding:NSUTF8StringEncoding];
+    }else{
+        updateVal = updateValue;
+    }
+    
+    NSString *DBTypeAccording = nil;
+    NSString *DBTypeUpdate = nil;
+    if (indexAccording < allDBPropertyType.count) {
+        DBTypeAccording = allDBPropertyType[indexAccording];
+    }
+    if (indexUpdate < allDBPropertyType.count) {
+        DBTypeUpdate = allDBPropertyType[indexUpdate];
+    }
+    
+    NSString *DBTypeAccordingMark = [databaseCache getMarkWithDBType:DBTypeAccording];
+    NSString *DBTypeUpdateMark = [databaseCache getMarkWithDBType:DBTypeUpdate];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [databaseCache.queue inDatabase:^(FMDatabase *db) {
+            
+            NSMutableString *update = [[NSMutableString alloc]init];
+            [update appendString:@"update %@ set %@ = "];
+            [update appendString:DBTypeUpdateMark];
+            [update appendString:@" where %@ = "];
+            [update appendString:DBTypeAccordingMark];
+            
+            BOOL result = NO;
+//            if ([DBTypeAccording isEqualToString:@"blob"] && [DBTypeUpdate isEqualToString:@"blob"]) {///检索和更新都是自定义对象
+//                NSString *updateSQL = [NSString stringWithFormat:update,
+//                                       modelName,
+//                                       updateKeyword,
+//                                       accordingKeyword];
+//                NSData *accordingData = [NSKeyedArchiver archivedDataWithRootObject:accordingVal];
+//                NSData *updateData = [NSKeyedArchiver archivedDataWithRootObject:updateVal];
+//                result = [db executeUpdate:updateSQL,accordingData,updateData];
+//            }else if([DBTypeAccording isEqualToString:@"blob"] && ![DBTypeUpdate isEqualToString:@"blob"]){
+//                NSString *updateSQL = [NSString stringWithFormat:update,
+//                                       modelName,
+//                                       updateKeyword,
+//                                       updateValue,
+//                                       accordingKeyword];
+//                NSData *accordingData = [NSKeyedArchiver archivedDataWithRootObject:accordingVal];
+//                result = [db executeUpdate:updateSQL,accordingData];
+//            }else if(![DBTypeAccording isEqualToString:@"blob"] && [DBTypeUpdate isEqualToString:@"blob"]){
+//                NSString *updateSQL = [NSString stringWithFormat:update,
+//                                       modelName,
+//                                       updateKeyword,
+//                                       accordingKeyword,
+//                                       accordingValue];
+//                NSData *updateData = [NSKeyedArchiver archivedDataWithRootObject:updateVal];
+//                result = [db executeUpdate:updateSQL,updateData];
+//            }else{
+//                NSString *updateSQL = [NSString stringWithFormat:update,
+//                                       modelName,
+//                                       updateKeyword,
+//                                       updateVal,
+//                                       accordingKeyword,
+//                                       accordingVal];
+//                result = [db executeUpdate:updateSQL];
+//            }
+            NSString *updateSQL = [NSString stringWithFormat:update,
+                                   modelName,
+                                   updateKeyword,
+                                   updateVal,
+                                   accordingKeyword,
+                                   accordingVal];
+            result = [db executeUpdate:updateSQL];
+            if (result) {NSLog(@"updateData==%@==Suc",modelName);
+                dispatch_async(dispatch_get_main_queue(), ^{if (suc) {suc();}});
+            }else{NSLog(@"updateData==%@==失败",modelName);}
+        }];
+    });
 }
-
+- (NSString *)getMarkWithDBType:(NSString *)DBType
+{
+    NSString *DBTypeMark = nil;
+    if ([DBType isEqualToString:@"text"]) {
+        DBTypeMark = @"'%@'";
+    }
+    if ([DBType isEqualToString:@"integer"]) {
+        DBTypeMark = @"%@";
+    }
+    if ([DBType isEqualToString:@"blob"]) {
+        DBTypeMark = @"?";
+    }
+    return DBTypeMark;
+}
 
 #pragma mark - --利用runtime完成属性的遍历和取值--
 ///通过运行时获取当前字符串映射的对象的所有属性的名称，以数组的形式返回

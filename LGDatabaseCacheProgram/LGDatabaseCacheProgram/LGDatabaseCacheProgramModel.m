@@ -27,6 +27,7 @@
     self = [super init];
     if (self) {
         _specialUI = [[UserUISpecial alloc]init];
+        _specialUI2 = [[UserUISpecial alloc]init];
     }
     return self;
 }
