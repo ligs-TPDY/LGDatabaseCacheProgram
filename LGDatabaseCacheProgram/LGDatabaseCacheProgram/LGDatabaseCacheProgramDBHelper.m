@@ -18,6 +18,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
 @interface LGDatabaseCacheProgramDBHelper ()
 @property (nonatomic,strong) FMDatabaseQueue *queue;
 @property (nonatomic,assign) NSInteger max_CacheNunber;
+@property (nonatomic,assign) BOOL isOpenDebugMode;
 @end
 
 @implementation LGDatabaseCacheProgramDBHelper
@@ -31,9 +32,19 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     });
     return sharedDatabaseCacheProgram;
 }
+/**
+    设置最大缓存数量，默认300条。
+ */
 - (void)setMaxCacheNumber:(NSInteger)maxCacheNumber
 {
     _max_CacheNunber = maxCacheNumber;
+}
+/**
+    是否使用调试模式（调试模式日志打印较为详细）
+ */
+- (void)setDebugMode:(BOOL)isOpenDebugMode;
+{
+    _isOpenDebugMode = isOpenDebugMode;
 }
 - (instancetype)init
 {
@@ -172,8 +183,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
 ///插入数据（增加数据）
 + (void)lgDB_InsertDataWithModelName:(NSString *)modelName
                           sourceData:(NSArray *)arrayForData
-                                 suc:(void (^)(void))suc
-                                 fai:(void (^)(void))fai;
+                              result:(void (^)(BOOL isSuc))result;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     ///参数有效性检测
@@ -264,7 +274,8 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                             count ++;
                         }
                     }
-                    if (count == arrayForDataCount) {NSLog(@"insert Data ==%@== success",modelName);
+                    if (count == arrayForDataCount) {
+                        NSLog(@"lgDB_InsertData == success == [%@]",modelName);
                         FMResultSet *results = [db executeQuery:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@",modelName]];
                         int totalCount = 0;
                         if ([results next]) {
@@ -272,13 +283,22 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                         }
                         [results close];
                         if (totalCount >= databaseCache.max_CacheNunber) {
+                            ///关键调试信息
+                            if (databaseCache.isOpenDebugMode) {
+                                NSLog(@"lgDB_SelectData == totalCount&&max_CacheNunber == [数据总量超过上限][%d%ld]",
+                                      totalCount,
+                                      databaseCache.max_CacheNunber);
+                            }
                             [self deleteDataWithModelName:modelName count:totalCount-databaseCache.max_CacheNunber];
                         }
-                        dispatch_async(dispatch_get_main_queue(), ^{suc();});}
-                    else{NSLog(@"insert Data failure"); dispatch_async(dispatch_get_main_queue(), ^{fai();});};
+                        dispatch_async(dispatch_get_main_queue(), ^{if(result){result(YES);}});
+                    }else{
+                        NSLog(@"lgDB_InsertData == failure == [%@]",modelName);
+                        dispatch_async(dispatch_get_main_queue(), ^{if(result){result(NO);}});
+                    };
                 }];
             });
-        } fai:^{dispatch_async(dispatch_get_main_queue(), ^{fai();});}];
+        } fai:^{dispatch_async(dispatch_get_main_queue(), ^{if(result){result(NO);}});}];
     }
 }
 ///当数据总量超过上限时，删除多余的数据
@@ -294,8 +314,8 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             ///删除与新数据等长的数据
             NSString *deleteContentSQL = [NSString stringWithFormat:@"delete from %@ where RetrievalId>=%ld ORDER BY RetrievalId asc limit %ld",modelName,totalCount,count];
             BOOL result = [db executeUpdate:deleteContentSQL];
-            if (result) {NSLog(@"数据总量超过上限：deleteData==%@==Suc",modelName);
-            }else{NSLog(@"数据总量超过上限：deleteData==%@==fai",modelName);}
+            if (result) {NSLog(@"数据总量超过上限：deleteData==%@==success",modelName);
+            }else{NSLog(@"数据总量超过上限：deleteData==%@==failure",modelName);}
         }];
     });
 }
@@ -317,6 +337,11 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                 keyword = searchKeyword;
             }
             
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_SelectData == searchKeyword == %@",searchKeyword);
+            }
+            
             NSInteger finallySearchValue = 0;
             {///获取到最大最小值
                 NSString *maxOrMin = nil;
@@ -332,6 +357,11 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             
             if (searchValue != 0) {///如果设置了值，则以设置值为准
                 finallySearchValue = searchValue;
+            }
+            
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_SelectData == finallySearchValue == %ld",finallySearchValue);
             }
             
             NSString *ascOrDesc = nil;
@@ -362,22 +392,29 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                 finallyNumber = number;
             }
             
-            NSString *selectSQL = [NSString stringWithFormat:@"select * from %@ where %@%@%ld ORDER BY %@ %@ limit %ld",modelName,keyword,mark,finallySearchValue,keyword,ascOrDesc,finallyNumber];
+            NSString *selectSQL = [NSString stringWithFormat:@"select * from %@ where %@%@%ld ORDER BY %@ %@ limit %ld",
+                                   modelName,
+                                   keyword,
+                                   mark,
+                                   finallySearchValue,
+                                   keyword,
+                                   ascOrDesc,
+                                   finallyNumber];
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_SelectData == selectSQL == %@",selectSQL);
+            }
             FMResultSet *result = [db executeQuery:selectSQL];
             NSArray *arrayForModel = [databaseCache changeFMResultSetForModel:result Model:modelName];
             if (arrayForModel.count != 0) {
-                NSLog(@"selectData==%@==Suc",modelName);
+                NSLog(@"lgDB_SelectData == success ==> [%@]",modelName);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (suc) {
-                        suc(YES,arrayForModel);
-                    }
+                    if (suc) {suc(YES,arrayForModel);}
                 });
             }else{
-                NSLog(@"selectData==%@==fai",modelName);
+                NSLog(@"lgDB_SelectData == failure ==> [%@]",modelName);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (suc) {
-                        suc(NO,nil);
-                    }
+                    if (suc) {suc(NO,nil);}
                 });
             }
         }];
@@ -389,7 +426,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                          searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
                            ascOrDesc:(SortWay)sortWay///排序方式
                               number:(NSInteger)number///条数
-                                 suc:(void (^)(void))suc;
+                              result:(void (^)(BOOL isSuc))result;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -399,6 +436,11 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                 keyword = @"RetrievalId";
             }else{
                 keyword = searchKeyword;
+            }
+            
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_DeleteData == searchKeyword == %@",searchKeyword);
             }
             
             NSInteger finallySearchValue = 0;
@@ -416,6 +458,11 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             
             if (searchValue != 0) {///如果设置了值，则以设置值为准
                 finallySearchValue = searchValue;
+            }
+            
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_DeleteData == finallySearchValue == %ld",finallySearchValue);
             }
             
             NSString *ascOrDesc = nil;
@@ -439,14 +486,18 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             }else{
                 deleteContentSQL = [NSString stringWithFormat:@"delete from %@ where %@%@%ld ORDER BY %@ %@ limit %ld",modelName,keyword,mark,finallySearchValue,keyword,ascOrDesc,number];
             }
-            BOOL result = [db executeUpdate:deleteContentSQL];
-            if (result) {NSLog(@"deleteData==%@==Suc",modelName);
-                if (number == 0) {
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_DeleteData == deleteContentSQL == %ld",deleteContentSQL);
+            }
+            BOOL deleteResult = [db executeUpdate:deleteContentSQL];
+            dispatch_async(dispatch_get_main_queue(), ^{if (result) {result(deleteResult);}});
+            if (deleteResult) {NSLog(@"lgDB_DeleteData == success ==> [%@]",modelName);
+                if (number <= 0) {///清空缓存版本号
                     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                     [userDefaults removeObjectForKey:CACHE_APPVERSION];
                 }
-                dispatch_async(dispatch_get_main_queue(), ^{if (suc) {suc();}});
-            }else{NSLog(@"deleteData==%@==Fai",modelName);}
+            }else{NSLog(@"lgDB_DeleteData == failure ==> [%@]",modelName);}
         }];
     });
 }
@@ -457,45 +508,55 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                       accordingValue:(NSObject *)accordingValue///定位Value
                        updateKeyword:(NSString *)updateKeyword///待更新值的key
                          updateValue:(NSObject *)updateValue///待更新的值
-                                 suc:(void (^)(void))suc;
+                              result:(void (^)(BOOL isSuc))result;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
-    
+    ///所有属性名
     NSArray *allPropertyNames = [databaseCache getAllPropertyNames:modelName];
+    ///属性对应的数据库类型
     NSArray *allDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
+    ///属性类型
     NSArray *allPropertyType = [databaseCache getModelPropertyType:modelName];
     
+    ///属性位置
     NSInteger indexAccording = [allPropertyNames indexOfObject:accordingKeyword];
     NSInteger indexUpdate = [allPropertyNames indexOfObject:updateKeyword];
     
-    NSString *typeAccording = nil;
-    NSString *typeUpdate = nil;
+    ///key类型
+    NSString *typeAccordingProperty = nil;
+    NSString *typeUpdateProperty = nil;
     if (indexAccording < allPropertyType.count) {
-        typeAccording = allPropertyType[indexAccording];
+        typeAccordingProperty = allPropertyType[indexAccording];
     }
     if (indexUpdate < allPropertyType.count) {
-        typeUpdate = allPropertyType[indexUpdate];
+        typeUpdateProperty = allPropertyType[indexUpdate];
     }
     
-    NSObject *accordingVal = nil;
-    NSObject *updateVal = nil;
-    if ([typeAccording isEqualToString:@"@\"NSArray\""] || [typeAccording isEqualToString:@"@\"NSDictionary\""]) {
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:accordingValue
-                                                           options:NSJSONWritingPrettyPrinted error:nil];
-        accordingVal = [[NSString alloc] initWithData:jsonData
-                                             encoding:NSUTF8StringEncoding];
-    }else{
-        accordingVal = accordingValue;
-    }
-    if ([typeUpdate isEqualToString:@"@\"NSArray\""] || [typeUpdate isEqualToString:@"@\"NSDictionary\""]) {
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:updateValue
-                                                           options:NSJSONWritingPrettyPrinted error:nil];
-        updateVal = [[NSString alloc] initWithData:jsonData
-                                          encoding:NSUTF8StringEncoding];
-    }else{
-        updateVal = updateValue;
+    ///Value类型
+    NSString *typeAccordingValue = nil;
+    NSString *typeUpdateValue = nil;
+    {
+        typeAccordingValue = [NSString stringWithUTF8String:object_getClassName(accordingValue)];
+        typeUpdateValue = [NSString stringWithUTF8String:object_getClassName(updateValue)];
     }
     
+    ///关键调试信息
+    if (databaseCache.isOpenDebugMode) {
+        NSLog(@"lgDB_UpdateData == typeAccordingProperty == %@",typeAccordingProperty);
+        NSLog(@"lgDB_UpdateData == typeUpdateProperty == %@",typeUpdateProperty);
+        NSLog(@"lgDB_UpdateData == typeAccordingValue == %@",typeAccordingValue);
+        NSLog(@"lgDB_UpdateData == typeUpdateValue == %@",typeUpdateValue);
+    }
+    
+    ///key类型与Value类型必须要一一对应
+    if (![typeAccordingProperty containsString:typeAccordingValue]) {
+        NSLog(@"lgDB_UpdateData == failure ==> [typeAccordingProperty != typeAccordingValue]");return;
+    }
+    if (![typeUpdateProperty containsString:typeUpdateValue]) {
+        NSLog(@"lgDB_UpdateData == failure ==> [typeUpdateProperty != typeUpdateValue]");return;
+    }
+    
+    ///key对应数据库类型
     NSString *DBTypeAccording = nil;
     NSString *DBTypeUpdate = nil;
     if (indexAccording < allDBPropertyType.count) {
@@ -505,8 +566,31 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         DBTypeUpdate = allDBPropertyType[indexUpdate];
     }
     
+    ///根据类型确定拼接占位符
     NSString *DBTypeAccordingMark = [databaseCache getMarkWithDBType:DBTypeAccording];
     NSString *DBTypeUpdateMark = [databaseCache getMarkWithDBType:DBTypeUpdate];
+    
+    ///处理values
+    NSObject *accordingVal = nil;
+    NSObject *updateVal = nil;
+    {
+        if ([typeAccordingProperty isEqualToString:@"@\"NSArray\""] || [typeAccordingProperty isEqualToString:@"@\"NSDictionary\""]) {
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:accordingValue
+                                                               options:NSJSONWritingPrettyPrinted error:nil];
+            accordingVal = [[NSString alloc] initWithData:jsonData
+                                                 encoding:NSUTF8StringEncoding];
+        }else{
+            accordingVal = accordingValue;
+        }
+        if ([typeUpdateProperty isEqualToString:@"@\"NSArray\""] || [typeUpdateProperty isEqualToString:@"@\"NSDictionary\""]) {
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:updateValue
+                                                               options:NSJSONWritingPrettyPrinted error:nil];
+            updateVal = [[NSString alloc] initWithData:jsonData
+                                              encoding:NSUTF8StringEncoding];
+        }else{
+            updateVal = updateValue;
+        }
+    }
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [databaseCache.queue inDatabase:^(FMDatabase *db) {
@@ -516,51 +600,21 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             [update appendString:DBTypeUpdateMark];
             [update appendString:@" where %@ = "];
             [update appendString:DBTypeAccordingMark];
-            
-            BOOL result = NO;
-//            if ([DBTypeAccording isEqualToString:@"blob"] && [DBTypeUpdate isEqualToString:@"blob"]) {///检索和更新都是自定义对象
-//                NSString *updateSQL = [NSString stringWithFormat:update,
-//                                       modelName,
-//                                       updateKeyword,
-//                                       accordingKeyword];
-//                NSData *accordingData = [NSKeyedArchiver archivedDataWithRootObject:accordingVal];
-//                NSData *updateData = [NSKeyedArchiver archivedDataWithRootObject:updateVal];
-//                result = [db executeUpdate:updateSQL,accordingData,updateData];
-//            }else if([DBTypeAccording isEqualToString:@"blob"] && ![DBTypeUpdate isEqualToString:@"blob"]){
-//                NSString *updateSQL = [NSString stringWithFormat:update,
-//                                       modelName,
-//                                       updateKeyword,
-//                                       updateValue,
-//                                       accordingKeyword];
-//                NSData *accordingData = [NSKeyedArchiver archivedDataWithRootObject:accordingVal];
-//                result = [db executeUpdate:updateSQL,accordingData];
-//            }else if(![DBTypeAccording isEqualToString:@"blob"] && [DBTypeUpdate isEqualToString:@"blob"]){
-//                NSString *updateSQL = [NSString stringWithFormat:update,
-//                                       modelName,
-//                                       updateKeyword,
-//                                       accordingKeyword,
-//                                       accordingValue];
-//                NSData *updateData = [NSKeyedArchiver archivedDataWithRootObject:updateVal];
-//                result = [db executeUpdate:updateSQL,updateData];
-//            }else{
-//                NSString *updateSQL = [NSString stringWithFormat:update,
-//                                       modelName,
-//                                       updateKeyword,
-//                                       updateVal,
-//                                       accordingKeyword,
-//                                       accordingVal];
-//                result = [db executeUpdate:updateSQL];
-//            }
             NSString *updateSQL = [NSString stringWithFormat:update,
                                    modelName,
                                    updateKeyword,
                                    updateVal,
                                    accordingKeyword,
                                    accordingVal];
-            result = [db executeUpdate:updateSQL];
-            if (result) {NSLog(@"updateData==%@==Suc",modelName);
-                dispatch_async(dispatch_get_main_queue(), ^{if (suc) {suc();}});
-            }else{NSLog(@"updateData==%@==失败",modelName);}
+            ///关键调试信息
+            if (databaseCache.isOpenDebugMode) {
+                NSLog(@"lgDB_UpdateData == updateSQL == %@",updateSQL);
+            }
+            BOOL updateResult = [db executeUpdate:updateSQL];
+            dispatch_async(dispatch_get_main_queue(), ^{if (result) {result(updateResult);}});
+            ///打印结果！！！！！！！！！
+            if (result) {NSLog(@"lgDB_UpdateData == success ==> [%@]",modelName);
+            }else{NSLog(@"lgDB_UpdateData == failure ==> [%@]",modelName);};
         }];
     });
 }
@@ -572,9 +626,6 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     }
     if ([DBType isEqualToString:@"integer"]) {
         DBTypeMark = @"%@";
-    }
-    if ([DBType isEqualToString:@"blob"]) {
-        DBTypeMark = @"?";
     }
     return DBTypeMark;
 }

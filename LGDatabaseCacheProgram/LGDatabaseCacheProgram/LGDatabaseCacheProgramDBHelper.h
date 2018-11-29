@@ -25,16 +25,23 @@ typedef NS_ENUM(NSInteger,SortWay)
 
 
 @interface LGDatabaseCacheProgramDBHelper : NSObject
+
++ (LGDatabaseCacheProgramDBHelper *)sharedDatabaseCacheProgramDBHelper;
+
 /**
     设置最大缓存数量，默认300条。
  */
 - (void)setMaxCacheNumber:(NSInteger)maxCacheNumber;
+/**
+    是否使用调试模式（调试模式日志打印较为详细）
+ */
+- (void)setDebugMode:(BOOL)isOpenDebugMode;
 
-///插入新数据
+
+#pragma mark - --插入新数据--
 + (void)lgDB_InsertDataWithModelName:(NSString *)modelName
                           sourceData:(NSArray *)arrayForData
-                                 suc:(void (^)(void))suc
-                                 fai:(void (^)(void))fai;
+                              result:(void (^)(BOOL isSuc))result;
 
 #pragma mark - --根据条件获取缓存数据--
 ///根据条件获取缓存数据
@@ -51,7 +58,7 @@ typedef NS_ENUM(NSInteger,SortWay)
                          searchValue:(NSInteger)searchValue///检索关键字值，为0默认最大或者最小值。
                            ascOrDesc:(SortWay)sortWay///排序方式
                               number:(NSInteger)number///条数
-                                 suc:(void (^)(void))suc;
+                              result:(void (^)(BOOL isSuc))result;
 #pragma mark - --根据条件更改数据--
 ///根据条件更改数据
 + (void)lgDB_UpdateDataWithModelName:(NSString *)modelName
@@ -59,7 +66,7 @@ typedef NS_ENUM(NSInteger,SortWay)
                       accordingValue:(NSObject *)accordingValue///定位Value
                        updateKeyword:(NSString *)updateKeyword///待更新值的key
                          updateValue:(NSObject *)updateValue///待更新的值
-                                 suc:(void (^)(void))suc;
+                              result:(void (^)(BOOL isSuc))result;
 
 
 

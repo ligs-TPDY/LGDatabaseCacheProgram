@@ -31,14 +31,33 @@
 //                                                                 suc:^{
 //                                                                     NSLog(@"123");
 //                                                                 }];
+//        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
+//                                                    accordingKeyword:@"userName"
+//                                                      accordingValue:@"小明"
+//                                                       updateKeyword:@"userOtherInformmation"
+//                                                         updateValue:@{@"key":@"values",@"key2":@"values2"}
+//                                                                 suc:^{
+//
+//                                                                 }];
+//        
+//        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
+//                                                    accordingKeyword:@"userName"
+//                                                      accordingValue:@"小明"
+//                                                       updateKeyword:@"userGrade"
+//                                                         updateValue:@[@"300",@"400"]
+//                                                                 suc:^{
+//                                                                     
+//                                                                 }];
+        
         [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
                                                     accordingKeyword:@"userName"
                                                       accordingValue:@"小明"
-                                                       updateKeyword:@"userOtherInformmation"
-                                                         updateValue:@{@"key":@"values",@"key2":@"values2"}
-                                                                 suc:^{
-
-                                                                 }];
+                                                       updateKeyword:@"userAge"
+                                                         updateValue:@[@"222"]
+                                                              result:^(BOOL isSuc) {
+                                                                  
+                                                              }];
+        
         
         [LGDatabaseCacheProgramDBHelper lgDB_SelectDataWithModelName:@"LGDatabaseCacheProgramModel"
                                                        searchKeyword:nil
