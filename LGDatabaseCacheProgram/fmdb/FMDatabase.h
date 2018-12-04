@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if ! __has_feature(objc_arc)
+#if ! __has_feature(objc_arc)///判断是否ARC
     #define FMDBAutorelease(__v) ([__v autorelease]);
     #define FMDBReturnAutoreleased FMDBAutorelease
 
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 // If OS_OBJECT_USE_OBJC=1, then the dispatch objects will be treated like ObjC objects
 // and will participate in ARC.
 // See the section on "Dispatch Queues and Automatic Reference Counting" in "Grand Central Dispatch (GCD) Reference" for details. 
-    #if OS_OBJECT_USE_OBJC
+    #if OS_OBJECT_USE_OBJC///GCD中的对象在6.0之前是不参与ARC，OS_OBJECT_USE_OBJC在SDK6.0之前是没有的
         #define FMDBDispatchQueueRelease(__v)
     #else
         #define FMDBDispatchQueueRelease(__v) (dispatch_release(__v));
@@ -37,11 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
 #if !__has_feature(objc_instancetype)
     #define instancetype id
 #endif
+/**
+     #if __has_feature(objc_instancetype)
+     #define MB_INSTANCETYPE instancetype
+     #else
+     #define MB_INSTANCETYPE id
+     #endif
+ */
 
 
 typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary);
 
-typedef NS_ENUM(int, FMDBCheckpointMode) {
+typedef NS_ENUM(int, FMDBCheckpointMode) {///[typedef#enum#NS_ENUM#NS_OPTIONS#移位]
     FMDBCheckpointModePassive  = 0, // SQLITE_CHECKPOINT_PASSIVE,
     FMDBCheckpointModeFull     = 1, // SQLITE_CHECKPOINT_FULL,
     FMDBCheckpointModeRestart  = 2, // SQLITE_CHECKPOINT_RESTART,
@@ -54,13 +61,18 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  The three main classes in FMDB are:
 
  - `FMDatabase` - Represents a single SQLite database.  Used for executing SQL statements.
+                (表示单个SQLite数据库。 用于执行SQL语句)
  - `<FMResultSet>` - Represents the results of executing a query on an `FMDatabase`.
+                    (表示在`FMDatabase`上执行查询的结果)
  - `<FMDatabaseQueue>` - If you want to perform queries and updates on multiple threads, you'll want to use this class.
+                        (如果要在多个线程上执行查询和更新，则需要使用此类)
 
  ### See also
  
  - `<FMDatabasePool>` - A pool of `FMDatabase` objects.
+                        (一个`FMDatabase`对象池)
  - `<FMStatement>` - A wrapper for `sqlite_stmt`.
+                        (`sqlite_stmt`的包装器)
  
  ### External links
  
@@ -70,7 +82,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  - [SQLite FAQ](http://www.sqlite.org/faq.html)
  
  @warning Do not instantiate a single `FMDatabase` object and use it across multiple threads. Instead, use `<FMDatabaseQueue>`.
-
+        (不要实例化单个`FMDatabase`对象并在多个线程中使用它。 相反，使用`<FMDatabaseQueue>`)
  */
 
 #pragma clang diagnostic push
@@ -84,23 +96,23 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///-----------------
 
 /** Whether should trace execution */
-
+//(是否应该跟踪执行)
 @property (atomic, assign) BOOL traceExecution;
 
 /** Whether checked out or not */
-
+//(是否签出)
 @property (atomic, assign) BOOL checkedOut;
 
 /** Crash on errors */
-
+//(崩溃时出错)
 @property (atomic, assign) BOOL crashOnErrors;
 
 /** Logs errors */
-
+//(记录错误)
 @property (atomic, assign) BOOL logsErrors;
 
 /** Dictionary of cached statements */
-
+//(缓存语句字典)
 @property (atomic, retain, nullable) NSMutableDictionary *cachedStatements;
 
 ///---------------------
@@ -110,11 +122,13 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 /** Create a `FMDatabase` object.
  
  An `FMDatabase` is created with a path to a SQLite database file.  This path can be one of these three:
-
+ 
  1. A file system path.  The file does not have to exist on disk.  If it does not exist, it is created for you.
+    (文件系统路径。 该文件不必存在于磁盘上。 如果它不存在，则会为您创建)
  2. An empty string (`@""`).  An empty database is created at a temporary location.  This database is deleted with the `FMDatabase` connection is closed.
+    (一个空字符串（`@“”`）。 在临时位置创建空数据库。 删除`FMDatabase`连接时删除此数据库)
  3. `nil`.  An in-memory database is created.  This database will be destroyed with the `FMDatabase` connection is closed.
-
+    (`nil`。 创建内存数据库。 将关闭`FMDatabase`连接销毁此数据库。)
  For example, to create/open a database in your Mac OS X `tmp` folder:
 
     FMDatabase *db = [FMDatabase databaseWithPath:@"/tmp/tmp.db"];
@@ -319,11 +333,13 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///----------------------
 
 /** Execute single update statement
- 
+    (执行单个更新语句)
  This method executes a single SQL update statement (i.e. any SQL that does not return results, such as `UPDATE`, `INSERT`, or `DELETE`. This method employs [`sqlite3_prepare_v2`](http://sqlite.org/c3ref/prepare.html), [`sqlite3_bind`](http://sqlite.org/c3ref/bind_blob.html) to bind values to `?` placeholders in the SQL with the optional list of parameters, and [`sqlite_step`](http://sqlite.org/c3ref/step.html) to perform the update.
+    (此方法执行单个SQL更新语句（即任何不返回结果的SQL，例如`UPDATE`，`INSERT`或`DELETE`。此方法使用[`sqlite3_prepare_v2`]（http://sqlite.org/ c3ref / prepare.html），[`sqlite3_bind`]（http://sqlite.org/c3ref/bind_blob.html）使用可选的参数列表将值绑定到SQL中的`？`占位符，并[`sqlite_step` ]（http://sqlite.org/c3ref/step.html）执行更新。)
 
  The optional values provided to this method should be objects (e.g. `NSString`, `NSNumber`, `NSNull`, `NSDate`, and `NSData` objects), not fundamental data types (e.g. `int`, `long`, `NSInteger`, etc.). This method automatically handles the aforementioned object types, and all other object types will be interpreted as text values using the object's `description` method.
-
+    (提供给此方法的可选值应该是对象（例如`NSString`，`NSNumber`，`NSNull`，`NSDate`和`NSData`对象），而不是基本数据类型（例如`int`，`long`，` NSInteger`等）。 此方法自动处理上述对象类型，所有其他对象类型将使用对象的`description`方法解释为文本值。)
+ 
  @param sql The SQL to be performed, with optional `?` placeholders.
  
  @param outErr A reference to the `NSError` pointer to be updated with an auto released `NSError` object if an error if an error occurs. If `nil`, no `NSError` object will be returned.
@@ -397,6 +413,16 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
     [db executeUpdate:@"INSERT INTO test (name) VALUES (?)", @"Gus"];
 
  There are two reasons why this distinction is important. First, the printf-style escape sequences can only be used where it is permissible to use a SQLite `?` placeholder. You can use it only for values in SQL statements, but not for table names or column names or any other non-value context. This method also cannot be used in conjunction with `pragma` statements and the like. Second, note the lack of quotation marks in the SQL. The `VALUES` clause was _not_ `VALUES ('%@')` (like you might have to do if you built a SQL statement using `NSString` method `stringWithFormat`), but rather simply `VALUES (%@)`.
+ 
+ 此方法在技术上不执行传统的printf样式替换。这个方法实际上做的是用一个SQLite`？`占位符替换printf样式的百分比序列，然后将值绑定到该占位符。因此以下命令
+ 
+     [db executeUpdateWithFormat：@“INSERT INTO test（name）VALUES（％@）”，@“Gus”];
+ 
+  实际上用`？`占位符替换'％@`，然后执行等同于`<executeUpdate：>的东西
+ 
+     [db executeUpdate：@“INSERT INTO test（name）VALUES（？）”，@“Gus”];
+ 
+  这种区别很重要有两个原因。首先，printf样式的转义序列只能在允许使用SQLite`？`占位符的地方使用。您只能将它用于SQL语句中的值，但不能用于表名或列名或任何其他非值上下文。该方法也不能与`pragma`语句等一起使用。其次，请注意SQL中缺少引号。 `VALUES`子句是_not_`VALUES（'％@'）`（就像你使用`NSString`方法`stringWithFormat`构建一个SQL语句时可能需要做的那样），而只是`VALUES（％@）`。
  */
 
 - (BOOL)executeUpdateWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
@@ -410,7 +436,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  @param sql The SQL to be performed, with optional `?` placeholders.
  
  @param arguments A `NSArray` of objects to be used when binding values to the `?` placeholders in the SQL statement.
- 
+                (在SQL语句中将值绑定到`？`占位符时要使用的`NSArray`对象。)
  @return `YES` upon success; `NO` upon failure. If failed, you can call `<lastError>`, `<lastErrorCode>`, or `<lastErrorMessage>` for diagnostic information regarding the failure.
  
  @see executeUpdate:values:error:
@@ -458,6 +484,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  @param sql The SQL to be performed, with optional `?` placeholders.
 
  @param arguments A `NSDictionary` of objects keyed by column names that will be used when binding values to the `?` placeholders in the SQL statement.
+                (由列名称键入的对象的“NSDictionary”，在将值绑定到SQL语句中的`？`占位符时将使用。)
 
  @return `YES` upon success; `NO` upon failure. If failed, you can call `<lastError>`, `<lastErrorCode>`, or `<lastErrorMessage>` for diagnostic information regarding the failure.
 
@@ -478,6 +505,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  @param sql The SQL to be performed, with optional `?` placeholders.
 
  @param args A `va_list` of arguments.
+                (一个`va_list`参数。)
 
  @return `YES` upon success; `NO` upon failure. If failed, you can call `<lastError>`, `<lastErrorCode>`, or `<lastErrorMessage>` for diagnostic information regarding the failure.
 
@@ -490,7 +518,8 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 
 /** Execute multiple SQL statements
  
- This executes a series of SQL statements that are combined in a single string (e.g. the SQL generated by the `sqlite3` command line `.dump` command). This accepts no value parameters, but rather simply expects a single string with multiple SQL statements, each terminated with a semicolon. This uses `sqlite3_exec`. 
+ This executes a series of SQL statements that are combined in a single string (e.g. the SQL generated by the `sqlite3` command line `.dump` command). This accepts no value parameters, but rather simply expects a single string with multiple SQL statements, each terminated with a semicolon. This uses `sqlite3_exec`.
+ (这将执行一系列SQL语句，这些语句组合在一个字符串中（例如，由`sqlite3`命令行`.dump`命令生成的SQL）。 它不接受任何值参数，而是简单地期望具有多个SQL语句的单个字符串，每个语句以分号结尾。 这使用`sqlite3_exec`。)
 
  @param  sql  The SQL to be performed
  
@@ -528,6 +557,9 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  Each entry in an SQLite table has a unique 64-bit signed integer key called the "rowid". The rowid is always available as an undeclared column named `ROWID`, `OID`, or `_ROWID_` as long as those names are not also used by explicitly declared columns. If the table has a column of type `INTEGER PRIMARY KEY` then that column is another alias for the rowid.
  
  This routine returns the rowid of the most recent successful `INSERT` into the database from the database connection in the first argument. As of SQLite version 3.7.7, this routines records the last insert rowid of both ordinary tables and virtual tables. If no successful `INSERT`s have ever occurred on that database connection, zero is returned.
+ (SQLite表中的每个条目都有一个唯一的64位有符号整数键，称为“rowid”。 rowid始终可用作名为`ROWID`，`OID`或`_ROWID_`的未声明列，只要这些名称不被显式声明的列使用。 如果表有一个类型为“INTEGER PRIMARY KEY”的列，那么该列是rowid的另一个别名。
+  
+   此例程将最新成功`INSERT`的rowid从第一个参数中的数据库连接返回到数据库中。 从SQLite版本3.7.7开始，此例程记录普通表和虚拟表的最后一个插入rowid。 如果在该数据库连接上没有发生过成功的“INSERT”，则返回零。)
  
  @return The rowid of the last inserted row.
  
@@ -540,6 +572,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 /** The number of rows changed by prior SQL statement.
  
  This function returns the number of database rows that were changed or inserted or deleted by the most recently completed SQL statement on the database connection specified by the first parameter. Only changes that are directly specified by the INSERT, UPDATE, or DELETE statement are counted.
+ (此函数返回由第一个参数指定的数据库连接上最近完成的SQL语句更改或插入或删除的数据库行数。 仅计算INSERT，UPDATE或DELETE语句直接指定的更改。)
  
  @return The number of rows changed by prior SQL statement.
  
@@ -561,6 +594,11 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
  In order to iterate through the results of your query, you use a `while()` loop.  You also need to "step" (via `<[FMResultSet next]>`) from one record to the other.
  
  This method employs [`sqlite3_bind`](http://sqlite.org/c3ref/bind_blob.html) for any optional value parameters. This  properly escapes any characters that need escape sequences (e.g. quotation marks), which eliminates simple SQL errors as well as protects against SQL injection attacks. This method natively handles `NSString`, `NSNumber`, `NSNull`, `NSDate`, and `NSData` objects. All other object types will be interpreted as text values using the object's `description` method.
+ (执行查询如果成功则返回`<FMResultSet>`对象，失败时返回`nil`。 与执行更新一样，有一个变量接受`NSError **`参数。 否则，您应该使用`<lastErrorMessage>`和`<lastErrorMessage>`方法来确定查询失败的原因。
+  
+   为了遍历查询结果，使用`while（）`循环。 你还需要从一个记录到另一个记录“步骤”（通过`<[[[[[[[[[[[[[[[[[[[[[[[
+  
+   对于任何可选的值参数，此方法使用[`sqlite3_bind`]（http://sqlite.org/c3ref/bind_blob.html）。 这可以正确地转义任何需要转义序列的字符（例如引号），这样可以消除简单的SQL错误并防止SQL注入攻击。 这个方法原生地处理`NSString`，`NSNumber`，`NSNull`，`NSDate`和`NSData`对象。 所有其他对象类型将使用对象的`description`方法解释为文本值。)
 
  @param sql The SELECT statement to be performed, with optional `?` placeholders.
 
@@ -697,6 +735,13 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
              deferred transactions. If you really need exclusive tranaction, it is
              recommended that you use `beginExclusiveTransaction`, instead, not
              only to make your intent explicit, but also to future-proof your code.
+              (与SQLite的`BEGIN TRANSACTION`不同，此方法目前正在执行
+               独家交易，而不是延期交易。 这种行为
+               很可能会在FMDB的未来版本中发生变化，即此方法
+               最终可能会采用标准的SQLite行为并执行
+               延期交易。 如果你真的需要独家交易，那就是
+               建议您使用`beginExclusiveTransaction`，而不是
+               只是为了明确你的意图，而且还要为你的代码提供面向未来的证明。)
 
  */
 
@@ -784,11 +829,11 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///----------------------------------------
 
 /** Clear cached statements */
-
+//(清除缓存的语句)
 - (void)clearCachedStatements;
 
 /** Close all open result sets */
-
+///(关闭所有打开的结果集)
 - (void)closeOpenResultSets;
 
 /** Whether database has any open result sets
@@ -800,7 +845,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 
 /** Whether should cache statements or not
   */
-
+//(是否应该缓存语句)
 @property (nonatomic) BOOL shouldCacheStatements;
 
 /** Interupt pending database operation
@@ -818,7 +863,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///-------------------------
 
 /** Set encryption key.
- 
+ (设置加密密钥)
  @param key The key to be used.
 
  @return `YES` if success, `NO` on error.
@@ -831,7 +876,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 - (BOOL)setKey:(NSString*)key;
 
 /** Reset encryption key
-
+(重置加密密钥)
  @param key The key to be used.
 
  @return `YES` if success, `NO` on error.
@@ -844,7 +889,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 - (BOOL)rekey:(NSString*)key;
 
 /** Set encryption key using `keyData`.
- 
+ (使用`keyData`设置加密密钥)
  @param keyData The `NSData` to be used.
 
  @return `YES` if success, `NO` on error.
@@ -900,7 +945,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 /** Last error message
  
  Returns the English-language text that describes the most recent failed SQLite API call associated with a database connection. If a prior API call failed but the most recent API call succeeded, this return value is undefined.
-
+(返回描述与数据库连接关联的最新失败的SQLite API调用的英语文本。 如果先前的API调用失败但最近的API调用成功，则此返回值未定义。)
  @return `NSString` of the last error message.
  
  @see [sqlite3_errmsg()](http://sqlite.org/c3ref/errcode.html)
@@ -914,7 +959,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 /** Last error code
  
  Returns the numeric result code or extended result code for the most recent failed SQLite API call associated with a database connection. If a prior API call failed but the most recent API call succeeded, this return value is undefined.
- 
+ (返回与数据库连接关联的最新失败的SQLite API调用的数字结果代码或扩展结果代码。 如果先前的API调用失败但最近的API调用成功，则此返回值未定义。)
  @return Integer value of the last error code.
  
  @see [sqlite3_errcode()](http://sqlite.org/c3ref/errcode.html)
@@ -928,7 +973,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 /** Last extended error code
  
  Returns the numeric extended result code for the most recent failed SQLite API call associated with a database connection. If a prior API call failed but the most recent API call succeeded, this return value is undefined.
- 
+ (返回与数据库连接关联的最新失败的SQLite API调用的数字扩展结果代码。 如果先前的API调用失败但最近的API调用成功，则此返回值未定义。)
  @return Integer value of the last extended error code.
  
  @see [sqlite3_errcode()](http://sqlite.org/c3ref/errcode.html)
@@ -988,7 +1033,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 - (BOOL)startSavePointWithName:(NSString*)name error:(NSError * _Nullable *)outErr;
 
 /** Release save point
-
+(释放保存点)
  @param name Name of save point.
  
  @param outErr A `NSError` object to receive any error object (if any).
@@ -1003,7 +1048,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 - (BOOL)releaseSavePointWithName:(NSString*)name error:(NSError * _Nullable *)outErr;
 
 /** Roll back to save point
-
+(回滚保存点)
  @param name Name of save point.
  @param outErr A `NSError` object to receive any error object (if any).
  
@@ -1068,7 +1113,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///----------------------------
 
 /** Test to see if the library is threadsafe
-
+(测试库是否是线程安全的)
  @return `NO` if and only if SQLite was compiled with mutexing code omitted due to the SQLITE_THREADSAFE compile-time option being set to 0.
 
  @see [sqlite3_threadsafe()](http://sqlite.org/c3ref/threadsafe.html)
@@ -1077,7 +1122,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 + (BOOL)isSQLiteThreadSafe;
 
 /** Run-time library version numbers
- 
+ (运行时库版本号)
  @return The sqlite library version string.
  
  @see [sqlite3_libversion()](http://sqlite.org/c3ref/libversion.html)
@@ -1096,7 +1141,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {
 ///------------------------
 
 /** Adds SQL functions or aggregates or to redefine the behavior of existing SQL functions or aggregates.
- 
+ (添加SQL函数或聚合或重新定义现有SQL函数或聚合的行为)
  For example:
  
     [db makeFunctionNamed:@"RemoveDiacritics" arguments:1 block:^(void *context, int argc, void **argv) {
@@ -1142,7 +1187,7 @@ typedef NS_ENUM(int, SqliteValueType) {
 
 /**
  Get integer value of parameter in custom function.
- 
+ (获取自定义函数中参数的整数值)
  @param value The argument whose value to return.
  @return The integer value.
  
@@ -1294,7 +1339,9 @@ typedef NS_ENUM(int, SqliteValueType) {
 /** Generate an `NSDateFormatter` that won't be broken by permutations of timezones or locales.
  
  Use this method to generate values to set the dateFormat property.
- 
+ (生成一个“NSDateFormatter”，它不会被时区或语言环境的排列所打破。
+  
+   使用此方法生成值以设置dateFormat属性。)
  Example:
 
     myDB.dateFormat = [FMDatabase storeableDateFormat:@"yyyy-MM-dd HH:mm:ss"];

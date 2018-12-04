@@ -20,6 +20,11 @@
 		A656969C21927A80008DD21C /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = A656969721927A80008DD21C /* FMResultSet.m */; };
 		A656969F21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A656969E21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m */; };
 		A65696A221927D9B008DD21C /* LGDatabaseCacheProgramModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A65696A121927D9B008DD21C /* LGDatabaseCacheProgramModel.m */; };
+		A6D5148D21B66435004D6078 /* headFileConnection.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A6D5148C21B66435004D6078 /* headFileConnection.jpg */; };
+		A6D5148F21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */; };
+		A6D5149121B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */; };
+		A6D5149321B678B6004D6078 /* clangDiagnosticPush.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */; };
+		A6D5149621B68DBE004D6078 /* FMDatabaseheadFile.png in Resources */ = {isa = PBXBuildFile; fileRef = A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +53,11 @@
 		A656969E21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LGDatabaseCacheProgramDBHelper.m; sourceTree = "<group>"; };
 		A65696A021927D9B008DD21C /* LGDatabaseCacheProgramModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LGDatabaseCacheProgramModel.h; sourceTree = "<group>"; };
 		A65696A121927D9B008DD21C /* LGDatabaseCacheProgramModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LGDatabaseCacheProgramModel.m; sourceTree = "<group>"; };
+		A6D5148C21B66435004D6078 /* headFileConnection.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = headFileConnection.jpg; sourceTree = "<group>"; };
+		A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "typedef#enum#NS_ENUM#NS_OPTIONS#移位.m"; sourceTree = "<group>"; };
+		A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m"; sourceTree = "<group>"; };
+		A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = clangDiagnosticPush.m; sourceTree = "<group>"; };
+		A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabaseheadFile.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				A656968C21927A80008DD21C /* fmdb */,
+				A6D5149421B6795A004D6078 /* MustSee */,
 				A656967621927A40008DD21C /* AppDelegate.h */,
 				A656967721927A40008DD21C /* AppDelegate.m */,
 				A656967921927A40008DD21C /* ViewController.h */,
@@ -101,6 +112,7 @@
 		A656968C21927A80008DD21C /* fmdb */ = {
 			isa = PBXGroup;
 			children = (
+				A656969521927A80008DD21C /* FMDB.h */,
 				A656968D21927A80008DD21C /* FMDatabase.h */,
 				A656968E21927A80008DD21C /* FMDatabase.m */,
 				A656968F21927A80008DD21C /* FMDatabaseAdditions.h */,
@@ -109,11 +121,22 @@
 				A656969221927A80008DD21C /* FMDatabasePool.m */,
 				A656969321927A80008DD21C /* FMDatabaseQueue.h */,
 				A656969421927A80008DD21C /* FMDatabaseQueue.m */,
-				A656969521927A80008DD21C /* FMDB.h */,
 				A656969621927A80008DD21C /* FMResultSet.h */,
 				A656969721927A80008DD21C /* FMResultSet.m */,
 			);
 			path = fmdb;
+			sourceTree = SOURCE_ROOT;
+		};
+		A6D5149421B6795A004D6078 /* MustSee */ = {
+			isa = PBXGroup;
+			children = (
+				A6D5148C21B66435004D6078 /* headFileConnection.jpg */,
+				A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */,
+				A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */,
+				A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */,
+				A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */,
+			);
+			path = MustSee;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
@@ -176,6 +199,8 @@
 				A656968321927A41008DD21C /* LaunchScreen.storyboard in Resources */,
 				A656968021927A41008DD21C /* Assets.xcassets in Resources */,
 				A656967E21927A40008DD21C /* Main.storyboard in Resources */,
+				A6D5149621B68DBE004D6078 /* FMDatabaseheadFile.png in Resources */,
+				A6D5148D21B66435004D6078 /* headFileConnection.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,10 +216,13 @@
 				A656968621927A41008DD21C /* main.m in Sources */,
 				A65696A221927D9B008DD21C /* LGDatabaseCacheProgramModel.m in Sources */,
 				A656969B21927A80008DD21C /* FMDatabaseQueue.m in Sources */,
+				A6D5149121B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m in Sources */,
 				A656967821927A40008DD21C /* AppDelegate.m in Sources */,
 				A656969821927A80008DD21C /* FMDatabase.m in Sources */,
 				A656969C21927A80008DD21C /* FMResultSet.m in Sources */,
 				A656969F21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m in Sources */,
+				A6D5149321B678B6004D6078 /* clangDiagnosticPush.m in Sources */,
+				A6D5148F21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m in Sources */,
 				A656969921927A80008DD21C /* FMDatabaseAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
