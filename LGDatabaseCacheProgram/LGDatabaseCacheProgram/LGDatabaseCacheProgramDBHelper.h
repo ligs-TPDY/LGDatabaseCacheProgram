@@ -39,6 +39,7 @@ typedef NS_ENUM(NSInteger,SortWay)
 
 
 #pragma mark - --插入新数据--
+///插入新数据
 + (void)lgDB_InsertDataWithModelName:(NSString *)modelName
                           sourceData:(NSArray *)arrayForData
                               result:(void (^)(BOOL isSuc))result;

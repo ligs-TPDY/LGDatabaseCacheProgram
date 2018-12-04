@@ -20,34 +20,32 @@
     
     NSArray *arr = @[[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel],[self getModel]];
     
-    [LGDatabaseCacheProgramDBHelper lgDB_InsertDataWithModelName:@"LGDatabaseCacheProgramModel" sourceData:arr suc:^{
-
-        
-//        [LGDatabaseCacheProgramDBHelper lgDB_DeleteDataWithModelName:@"LGDatabaseCacheProgramModel"
-//                                                       searchKeyword:@"userAge"
-//                                                         searchValue:166
-//                                                           ascOrDesc:SortWay_Equal
-//                                                              number:0
-//                                                                 suc:^{
-//                                                                     NSLog(@"123");
-//                                                                 }];
-//        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
-//                                                    accordingKeyword:@"userName"
-//                                                      accordingValue:@"小明"
-//                                                       updateKeyword:@"userOtherInformmation"
-//                                                         updateValue:@{@"key":@"values",@"key2":@"values2"}
-//                                                                 suc:^{
-//
-//                                                                 }];
-//        
-//        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
-//                                                    accordingKeyword:@"userName"
-//                                                      accordingValue:@"小明"
-//                                                       updateKeyword:@"userGrade"
-//                                                         updateValue:@[@"300",@"400"]
-//                                                                 suc:^{
-//                                                                     
-//                                                                 }];
+    [LGDatabaseCacheProgramDBHelper lgDB_InsertDataWithModelName:@"LGDatabaseCacheProgramModel" sourceData:arr result:^(BOOL isSuc) {
+        //        [LGDatabaseCacheProgramDBHelper lgDB_DeleteDataWithModelName:@"LGDatabaseCacheProgramModel"
+        //                                                       searchKeyword:@"userAge"
+        //                                                         searchValue:166
+        //                                                           ascOrDesc:SortWay_Equal
+        //                                                              number:0
+        //                                                                 suc:^{
+        //                                                                     NSLog(@"123");
+        //                                                                 }];
+        //        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
+        //                                                    accordingKeyword:@"userName"
+        //                                                      accordingValue:@"小明"
+        //                                                       updateKeyword:@"userOtherInformmation"
+        //                                                         updateValue:@{@"key":@"values",@"key2":@"values2"}
+        //                                                                 suc:^{
+        //
+        //                                                                 }];
+        //
+        //        [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
+        //                                                    accordingKeyword:@"userName"
+        //                                                      accordingValue:@"小明"
+        //                                                       updateKeyword:@"userGrade"
+        //                                                         updateValue:@[@"300",@"400"]
+        //                                                                 suc:^{
+        //
+        //                                                                 }];
         
         [LGDatabaseCacheProgramDBHelper lgDB_UpdateDataWithModelName:@"LGDatabaseCacheProgramModel"
                                                     accordingKeyword:@"userName"
@@ -67,9 +65,6 @@
                                                                  suc:^(BOOL haveCache, NSArray *array) {
                                                                      NSLog(@"456");
                                                                  }];
-        
-    } fai:^{
-
     }];
 }
 
