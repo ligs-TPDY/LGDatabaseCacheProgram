@@ -8,8 +8,14 @@
 #### 菜鸟教程 [SQLite 教程](http://www.runoob.com/sqlite/sqlite-tutorial.html)
 #### W3Cschool [SQLite教程](https://www.w3cschool.cn/sqlite/)
 # FMDB version 2.7
-
+#### GitHub地址 [FMDB](https://github.com/ccgus/fmdb)
+#### [FMDB Reference](http://ccgus.github.io/fmdb/html/index.html)
+#### 自己写的一个源码分析，如果有错误，请大家批评指正
+#### [iOS进阶之fmdb](https://www.jianshu.com/c/9e5f02459642)
+#### 我在项目中的fmdb文件中也增加了自己的一些注释，有兴趣的同学可以下载阅读。
 # runtime 
+#### [iOS进阶之runtime](https://www.jianshu.com/c/8ebffeb1d1b3)
+
 
 # 升级方案
 
