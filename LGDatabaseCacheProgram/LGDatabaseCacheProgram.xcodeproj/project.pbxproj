@@ -24,7 +24,8 @@
 		A6D5148F21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */; };
 		A6D5149121B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */; };
 		A6D5149321B678B6004D6078 /* clangDiagnosticPush.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */; };
-		A6D5149621B68DBE004D6078 /* FMDatabaseheadFile.png in Resources */ = {isa = PBXBuildFile; fileRef = A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */; };
+		A6D5149621B68DBE004D6078 /* FMDBheadFile.png in Resources */ = {isa = PBXBuildFile; fileRef = A6D5149521B68DBE004D6078 /* FMDBheadFile.png */; };
+		A6E3CA8E21B76B5600BC3957 /* FMDatabaseAdditions.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,7 +58,8 @@
 		A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "typedef#enum#NS_ENUM#NS_OPTIONS#移位.m"; sourceTree = "<group>"; };
 		A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m"; sourceTree = "<group>"; };
 		A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = clangDiagnosticPush.m; sourceTree = "<group>"; };
-		A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabaseheadFile.png; sourceTree = "<group>"; };
+		A6D5149521B68DBE004D6078 /* FMDBheadFile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDBheadFile.png; sourceTree = "<group>"; };
+		A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = FMDatabaseAdditions.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,8 +132,9 @@
 		A6D5149421B6795A004D6078 /* MustSee */ = {
 			isa = PBXGroup;
 			children = (
+				A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */,
 				A6D5148C21B66435004D6078 /* headFileConnection.jpg */,
-				A6D5149521B68DBE004D6078 /* FMDatabaseheadFile.png */,
+				A6D5149521B68DBE004D6078 /* FMDBheadFile.png */,
 				A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */,
 				A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */,
 				A6D5149221B678B6004D6078 /* clangDiagnosticPush.m */,
@@ -199,8 +202,9 @@
 				A656968321927A41008DD21C /* LaunchScreen.storyboard in Resources */,
 				A656968021927A41008DD21C /* Assets.xcassets in Resources */,
 				A656967E21927A40008DD21C /* Main.storyboard in Resources */,
-				A6D5149621B68DBE004D6078 /* FMDatabaseheadFile.png in Resources */,
+				A6D5149621B68DBE004D6078 /* FMDBheadFile.png in Resources */,
 				A6D5148D21B66435004D6078 /* headFileConnection.jpg in Resources */,
+				A6E3CA8E21B76B5600BC3957 /* FMDatabaseAdditions.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FMResultSet * _Nullable)getTableSchema:(NSString*)tableName;
 
 /** Test to see if particular column exists for particular table in database
- 
+ （测试数据库中特定表是否存在特定列）
  @param columnName The name of the column.
  
  @param tableName The name of the table.
@@ -196,9 +196,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /** Validate SQL statement
- 
+ （验证SQL语句）
  This validates SQL statement by performing `sqlite3_prepare_v2`, but not returning the results, but instead immediately calling `sqlite3_finalize`.
- 
+ （这通过执行`sqlite3_prepare_v2`来验证SQL语句，但不返回结果，而是立即调用`sqlite3_finalize`。）
  @param sql The SQL statement being validated.
  
  @param error This is a pointer to a `NSError` object that will receive the autoreleased `NSError` object if there was any error. If this is `nil`, no `NSError` result will be returned.
