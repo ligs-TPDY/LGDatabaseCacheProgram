@@ -12,11 +12,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** To perform queries and updates on multiple threads, you'll want to use `FMDatabaseQueue`.
-
+(要在多个线程上执行查询和更新，您需要使用`FMDatabaseQueue`。)
  Using a single instance of `<FMDatabase>` from multiple threads at once is a bad idea.  It has always been OK to make a `<FMDatabase>` object *per thread*.  Just don't share a single instance across threads, and definitely not across multiple threads at the same time.
-
+(一次使用多个线程的单个“<FMDatabase>”实例是个坏主意。 每个线程*都可以创建一个`<FMDatabase>`对象*。 只是不要跨线程共享单个实例，并且绝对不能同时跨多个线程。)
  Instead, use `FMDatabaseQueue`. Here's how to use it:
-
+(相反，使用`FMDatabaseQueue`。 以下是如何使用它：)
  First, make your queue.
 
     FMDatabaseQueue *queue = [FMDatabaseQueue databaseQueueWithPath:aPath];
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
     }];
 
  An easy way to wrap things up in a transaction can be done like this:
-
+(在事务中包装事物的简单方法可以这样做：)
     [queue inTransaction:^(FMDatabase *db, BOOL *rollback) {
         [db executeUpdate:@"INSERT INTO myTable VALUES (?)", [NSNumber numberWithInt:1]];
         [db executeUpdate:@"INSERT INTO myTable VALUES (?)", [NSNumber numberWithInt:2]];
@@ -49,16 +49,16 @@ NS_ASSUME_NONNULL_BEGIN
         [db executeUpdate:@"INSERT INTO myTable VALUES (?)", [NSNumber numberWithInt:4]];
     }];
 
- `FMDatabaseQueue` will run the blocks on a serialized queue (hence the name of the class).  So if you call `FMDatabaseQueue`'s methods from multiple threads at the same time, they will be executed in the order they are received.  This way queries and updates won't step on each other's toes, and every one is happy.
-
+ `FMDatabaseQueue` will run the blocks on a serialized[ˈsɪəri:əˌlaɪzd] queue (hence the name of the class).  So if you call `FMDatabaseQueue`'s methods from multiple[ˈməltəpəl] threads at the same time, they will be executed [ˈeksikju:tid] in the order they are received.  This way queries and updates won't step on each other's toes, and every one is happy.
+(FMDatabaseQueue`将在序列化队列上运行块（因此是类的名称）。 因此，如果您同时从多个线程调用`FMDatabaseQueue`的方法，它们将按接收顺序执行。 这种方式查询和更新不会踩到彼此的脚趾，每个人都很高兴。)
  ### See also
 
  - `<FMDatabase>`
 
  @warning Do not instantiate a single `<FMDatabase>` object and use it across multiple threads. Use `FMDatabaseQueue` instead.
- 
+ (不要实例化单个`<FMDatabase>`对象并在多个线程中使用它。 请改用“FMDatabaseQueue”。)
  @warning The calls to `FMDatabaseQueue`'s methods are blocking.  So even though you are passing along blocks, they will **not** be run on another thread.
-
+(对“FMDatabaseQueue”方法的调用是阻塞的。 所以，即使你传递的是块，它们也不会在另一个线程上运行。)
  */
 
 @interface FMDatabaseQueue : NSObject
@@ -177,7 +177,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns the Class of 'FMDatabase' subclass, that will be used to instantiate database object.
  
  Subclasses can override this method to return specified Class of 'FMDatabase' subclass.
- 
+ (返回'FMDatabase'子类，它将用于实例化数据库对象。
+  
+   子类可以重写此方法以返回指定的“FMDatabase”子类。)
  @return The Class of 'FMDatabase' subclass, that will be used to instantiate database object.
  */
 
