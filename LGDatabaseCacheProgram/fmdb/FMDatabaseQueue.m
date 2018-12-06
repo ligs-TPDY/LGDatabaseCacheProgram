@@ -229,7 +229,7 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
         
         BOOL shouldRollback = NO;
 
-        switch (transaction) {
+        switch (transaction) {///涉及到SQLite的锁机制
             case FMDBTransactionExclusive:
                 [[self database] beginTransaction];
                 break;
