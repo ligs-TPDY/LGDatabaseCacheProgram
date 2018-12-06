@@ -54,8 +54,8 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         NSArray*paths=NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES);
         NSString*path=[paths objectAtIndex:0];
         NSString *db = [path stringByAppendingPathComponent:CACHEUSER];
-        self.queue = [FMDatabaseQueue databaseQueueWithPath:db];
-        self.max_CacheNunber = 300;
+        _queue = [FMDatabaseQueue databaseQueueWithPath:db];
+        _max_CacheNunber = 300;
     }
     return self;
 }
