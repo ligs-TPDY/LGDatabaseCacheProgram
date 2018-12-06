@@ -28,6 +28,7 @@
 		A6E3CA8E21B76B5600BC3957 /* FMDatabaseAdditions.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */; };
 		A6E3CA9321B797E600BC3957 /* FMDatabaseQueue.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9221B797E600BC3957 /* FMDatabaseQueue.png */; };
 		A6E3CA9521B8C57700BC3957 /* FMDatabasePool.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9421B8C57700BC3957 /* FMDatabasePool.png */; };
+		A6E3CA9721B8CC7D00BC3957 /* FMResultSet.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9621B8CC7D00BC3957 /* FMResultSet.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = FMDatabaseAdditions.jpg; sourceTree = "<group>"; };
 		A6E3CA9221B797E600BC3957 /* FMDatabaseQueue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabaseQueue.png; sourceTree = "<group>"; };
 		A6E3CA9421B8C57700BC3957 /* FMDatabasePool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabasePool.png; sourceTree = "<group>"; };
+		A6E3CA9621B8CC7D00BC3957 /* FMResultSet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMResultSet.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +138,7 @@
 		A6D5149421B6795A004D6078 /* MustSee */ = {
 			isa = PBXGroup;
 			children = (
+				A6E3CA9621B8CC7D00BC3957 /* FMResultSet.png */,
 				A6E3CA9421B8C57700BC3957 /* FMDatabasePool.png */,
 				A6E3CA9221B797E600BC3957 /* FMDatabaseQueue.png */,
 				A6E3CA8D21B76B5600BC3957 /* FMDatabaseAdditions.jpg */,
@@ -209,6 +212,7 @@
 				A656968021927A41008DD21C /* Assets.xcassets in Resources */,
 				A656967E21927A40008DD21C /* Main.storyboard in Resources */,
 				A6E3CA9321B797E600BC3957 /* FMDatabaseQueue.png in Resources */,
+				A6E3CA9721B8CC7D00BC3957 /* FMResultSet.png in Resources */,
 				A6D5149621B68DBE004D6078 /* FMDBheadFile.png in Resources */,
 				A6D5148D21B66435004D6078 /* headFileConnection.jpg in Resources */,
 				A6E3CA8E21B76B5600BC3957 /* FMDatabaseAdditions.jpg in Resources */,

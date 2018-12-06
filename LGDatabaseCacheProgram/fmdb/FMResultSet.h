@@ -5,6 +5,13 @@ NS_ASSUME_NONNULL_BEGIN
 #ifndef __has_feature      // Optional.
 #define __has_feature(x) 0 // Compatibility with non-clang compilers.
 #endif
+/*
+ __has_feature：某些特性验证
+ 
+ #if !__has_feature(objc_arc)
+ #error This library requires automatic reference counting
+ #endif
+ */
 
 #ifndef NS_RETURNS_NOT_RETAINED
 #if __has_feature(attribute_ns_returns_not_retained)
@@ -33,15 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
 ///-----------------
 
 /** Executed query */
-
+//执行查询
 @property (atomic, retain, nullable) NSString *query;
 
 /** `NSMutableDictionary` mapping column names to numeric index */
-
+///`NSMutableDictionary`将列名映射到数字索引
 @property (readonly) NSMutableDictionary *columnNameToIndexMap;
 
 /** `FMStatement` used by result set. */
-
+///结果集使用`FMStatement`
 @property (atomic, retain, nullable) FMStatement *statement;
 
 ///------------------------------------
@@ -70,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Retrieve next row for result set.
  
  You must always invoke `next` or `nextWithError` before attempting to access the values returned in a query, even if you're only expecting one.
-
+ 在尝试访问查询中返回的值之前，您必须始终调用`next`或`nextWithError`，即使您只是期望一个
  @return `YES` if row successfully retrieved; `NO` if end of result set reached
  
  @see hasAnotherRow
@@ -92,12 +99,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)nextWithError:(NSError * _Nullable *)outErr;
 
 /** Did the last call to `<next>` succeed in retrieving another row?
-
+ 对“<next>”的最后一次调用是否成功检索到另一行？
  @return `YES` if the last call to `<next>` succeeded in retrieving another record; `NO` if not.
  
  @see next
  
  @warning The `hasAnotherRow` method must follow a call to `<next>`. If the previous database interaction was something other than a call to `next`, then this method may return `NO`, whether there is another row of data or not.
+ `hasAnotherRow`方法必须跟随对`<next>`的调用。 如果之前的数据库交互不是对`next`的调用，那么这个方法可能会返回“NO”，无论是否有另一行数据。
  */
 
 - (BOOL)hasAnotherRow;
@@ -454,9 +462,9 @@ If you don't, you're going to be in a world of hurt when you try and use the dat
 ///-----------------------------
 
 /** Performs `setValue` to yield support for key value observing.
- 
+ 执行`setValue`以产生对键值观察的支持。
  @param object The object for which the values will be set. This is the key-value-coding compliant object that you might, for example, observe.
-
+ object要为其设置值的对象。 这是符合键值编码的对象，例如，您可以观察。
  */
 
 - (void)kvcMagic:(id)object;
