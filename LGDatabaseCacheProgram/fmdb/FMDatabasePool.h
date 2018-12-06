@@ -24,10 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
  If you really really really know what you're doing and `FMDatabasePool` is what
  you really really need (ie, you're using a read only database), OK you can use
  it.  But just be careful not to deadlock!
-
+ （如果你真的真的知道你在做什么，`FMDatabasePool`是什么你真的需要（即你正在使用一个只读数据库），你可以使用
+   它。 但要注意不要陷入僵局！）
  For an example on deadlocking, search for:
  `ONLY_USE_THE_POOL_IF_YOU_ARE_DOING_READS_OTHERWISE_YOULL_DEADLOCK_USE_FMDATABASEQUEUE_INSTEAD`
  in the main.m file.
+ 
+ only use the pool if you are doing reads otherwise youll deadlock use fadatabasqueue instead
+ 如果你正在读取，则只使用池，否则你将死锁使用fadatabasqueue
  */
 
 @interface FMDatabasePool : NSObject
@@ -170,12 +174,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Number of checked-in databases in pool
  */
-
+//（池中已签入数据库的数量）
 @property (nonatomic, readonly) NSUInteger countOfCheckedInDatabases;
 
 /** Number of checked-out databases in pool
  */
-
+//（池中已签出的数据库数）
 @property (nonatomic, readonly) NSUInteger countOfCheckedOutDatabases;
 
 /** Total number of databases in pool
@@ -189,6 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///------------------------------------------
 /// @name Perform database operations in pool
+///（在池中执行数据库操作）
 ///------------------------------------------
 
 /** Synchronously perform database operations in pool.
@@ -199,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)inDatabase:(__attribute__((noescape)) void (^)(FMDatabase *db))block;
 
 /** Synchronously perform database operations in pool using transaction.
- 
+ 使用事务在池中同步执行数据库操作
  @param block The code to be run on the `FMDatabasePool` pool.
  
  @warning   Unlike SQLite's `BEGIN TRANSACTION`, this method currently performs
@@ -209,6 +214,13 @@ NS_ASSUME_NONNULL_BEGIN
             deferred transactions. If you really need exclusive tranaction, it is
             recommended that you use `inExclusiveTransaction`, instead, not only
             to make your intent explicit, but also to future-proof your code.
+ 与SQLite的`BEGIN TRANSACTION`不同，此方法目前正在执行
+              独家交易，而不是延期交易。 这种行为
+              很可能会在FMDB的未来版本中发生变化，即此方法
+              最终可能会采用标准的SQLite行为并执行
+              延期交易。 如果你真的需要独家交易，那就是
+              建议您使用`inExclusiveTransaction`，而不仅仅是
+              使您的意图明确，但也为您的代码提供面向未来的证明。
   */
 
 - (void)inTransaction:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
