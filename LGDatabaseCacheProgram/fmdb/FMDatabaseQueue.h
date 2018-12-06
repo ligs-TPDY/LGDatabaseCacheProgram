@@ -92,6 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param url The file `NSURL` of the database.
  
  @return The `FMDatabaseQueue` object. `nil` on error.
+ 
+ ////url.path
  */
 
 + (nullable instancetype)databaseQueueWithURL:(NSURL * _Nullable)url;
@@ -186,11 +188,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (Class)databaseClass;
 
 /** Close database used by queue. */
-
+///关闭队列使用的数据库。
 - (void)close;
 
 /** Interupt pending database operation. */
-
+///中断挂起的数据库操作。
 - (void)interrupt;
 
 ///-----------------------------------------------
@@ -198,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///-----------------------------------------------
 
 /** Synchronously perform database operations on queue.
- 
+ ///在队列上同步执行数据库操作。
  @param block The code to be run on the queue of `FMDatabaseQueue`
  */
 
@@ -215,6 +217,14 @@ NS_ASSUME_NONNULL_BEGIN
              deferred transactions. If you really need exclusive tranaction, it is
              recommended that you use `inExclusiveTransaction`, instead, not only
              to make your intent explicit, but also to future-proof your code.
+ 
+               与SQLite的`BEGIN TRANSACTION`不同，此方法目前正在执行
+               独家交易，而不是延期交易。 这种行为
+               很可能会在FMDB的未来版本中发生变化，即此方法
+               最终可能会采用标准的SQLite行为并执行
+               延期交易。 如果你真的需要独家交易，那就是
+               建议您使用`inExclusiveTransaction`，而不仅仅是
+               使您的意图明确，但也为您的代码提供面向未来的证明。
 
  */
 

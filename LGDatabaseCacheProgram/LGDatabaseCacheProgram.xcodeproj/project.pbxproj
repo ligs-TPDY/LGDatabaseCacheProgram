@@ -29,6 +29,7 @@
 		A6E3CA9321B797E600BC3957 /* FMDatabaseQueue.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9221B797E600BC3957 /* FMDatabaseQueue.png */; };
 		A6E3CA9521B8C57700BC3957 /* FMDatabasePool.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9421B8C57700BC3957 /* FMDatabasePool.png */; };
 		A6E3CA9721B8CC7D00BC3957 /* FMResultSet.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E3CA9621B8CC7D00BC3957 /* FMResultSet.png */; };
+		A6E3CA9A21B90F8600BC3957 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E3CA9921B90F8600BC3957 /* libsqlite3.0.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		A6E3CA9221B797E600BC3957 /* FMDatabaseQueue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabaseQueue.png; sourceTree = "<group>"; };
 		A6E3CA9421B8C57700BC3957 /* FMDatabasePool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMDatabasePool.png; sourceTree = "<group>"; };
 		A6E3CA9621B8CC7D00BC3957 /* FMResultSet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FMResultSet.png; sourceTree = "<group>"; };
+		A6E3CA9921B90F8600BC3957 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6E3CA9A21B90F8600BC3957 /* libsqlite3.0.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +87,7 @@
 			children = (
 				A656967521927A40008DD21C /* LGDatabaseCacheProgram */,
 				A656967421927A40008DD21C /* Products */,
+				A6E3CA9821B90F8600BC3957 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -150,6 +154,14 @@
 			);
 			path = MustSee;
 			sourceTree = SOURCE_ROOT;
+		};
+		A6E3CA9821B90F8600BC3957 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A6E3CA9921B90F8600BC3957 /* libsqlite3.0.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 

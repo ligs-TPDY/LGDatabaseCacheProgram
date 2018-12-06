@@ -591,7 +591,6 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
             updateVal = updateValue;
         }
     }
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [databaseCache.queue inDatabase:^(FMDatabase *db) {
             

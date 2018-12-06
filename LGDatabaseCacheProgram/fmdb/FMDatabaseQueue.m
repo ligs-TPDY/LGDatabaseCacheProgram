@@ -16,9 +16,9 @@
 #endif
 
 typedef NS_ENUM(NSInteger, FMDBTransaction) {
-    FMDBTransactionExclusive,
-    FMDBTransactionDeferred,
-    FMDBTransactionImmediate,
+    FMDBTransactionExclusive,///独家
+    FMDBTransactionDeferred,///递延
+    FMDBTransactionImmediate,///即时
 };
 
 /*
@@ -33,6 +33,9 @@ typedef NS_ENUM(NSInteger, FMDBTransaction) {
  * A key used to associate the FMDatabaseQueue object with the dispatch_queue_t it uses.
  * This in turn is used for deadlock detection by seeing if inDatabase: is called on
  * the queue's dispatch queue, which should not happen and causes a deadlock.
+ *用于将FMDatabaseQueue对象与其使用的dispatch_queue_t相关联的键。
+ *这反过来用于通过查看inDatabase：是否被调用来进行死锁检测
+ *队列的调度队列，不应该发生并导致死锁。
  */
 static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey;
 
@@ -96,8 +99,18 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
         }
         
         _path = FMDBReturnRetained(aPath);
-        
+        /**创建一个队列
+                dispatch_queue_t dispatch_queue_create(const char *_Nullable label,dispatch_queue_attr_t _Nullable attr);
+           参数：const char *_Nullable label：label表示该队列的唯一标识字符串
+                dispatch_queue_attr_t _Nullable attr:DISPATCH_QUEUE_SERIAL        //指定串行（FIFO）队列,等同于传入参数NULL
+                                                     DISPATCH_QUEUE_CONCURRENT    //指定并发队列,
+         */
         _queue = dispatch_queue_create([[NSString stringWithFormat:@"fmdb.%@", self] UTF8String], NULL);
+        /**
+         dispatch_queue_set_specific就是向指定队列里面设置一个标识 如：
+            dispatch_queue_set_specific(queue1, queueKey1, &queueKey1,NULL);就是向queue1对了中设置一个queueKey1标识。
+         dispatch_get_specific就是在当前队列中取出标识，注意iOS中线程和队列的关系，所有的动作都是在队列中执行的！
+         */
         dispatch_queue_set_specific(_queue, kDispatchQueueSpecificKey, (__bridge void *)self, NULL);
         _openFlags = openFlags;
         _vfsName = [vfsName copy];
@@ -178,7 +191,8 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
 }
 
 - (void)inDatabase:(__attribute__((noescape)) void (^)(FMDatabase *db))block {
-#ifndef NDEBUG
+#ifndef NDEBUG ///(https://www.cnblogs.com/challenger-vip/p/3386819.html)
+               ///(https://blog.csdn.net/dazhi_100/article/details/7058266)
     /* Get the currently executing queue (which should probably be nil, but in theory could be another DB queue
      * and then check it against self to make sure we're not about to deadlock. */
     FMDatabaseQueue *currentSyncQueue = (__bridge id)dispatch_get_specific(kDispatchQueueSpecificKey);
