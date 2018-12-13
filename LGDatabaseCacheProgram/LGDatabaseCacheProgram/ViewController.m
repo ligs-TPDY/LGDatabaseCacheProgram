@@ -53,9 +53,8 @@
                                                        updateKeyword:@"userAge"
                                                          updateValue:@[@"222"]
                                                               result:^(BOOL isSuc) {
-                                                                  
-                                                              }];
-        
+                                                                  NSLog(@"123");
+                                                                }];
         
         [LGDatabaseCacheProgramDBHelper lgDB_SelectDataWithModelName:@"LGDatabaseCacheProgramModel"
                                                        searchKeyword:nil

@@ -829,7 +829,7 @@ typedef NS_ENUM(int, FMDBCheckpointMode) {///[typedef#enum#NS_ENUM#NS_OPTIONS#�
 ///----------------------------------------
 
 /** Clear cached statements */
-//(清除缓存的语句)
+///(清除缓存的语句)
 - (void)clearCachedStatements;
 
 /** Close all open result sets */

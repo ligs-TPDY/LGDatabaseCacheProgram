@@ -531,7 +531,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
     if (indexUpdate < allPropertyType.count) {
         typeUpdateProperty = allPropertyType[indexUpdate];
     }
-    
+
     ///Value类型
     NSString *typeAccordingValue = nil;
     NSString *typeUpdateValue = nil;
@@ -540,21 +540,21 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         typeUpdateValue = [NSString stringWithUTF8String:object_getClassName(updateValue)];
     }
     
-    ///关键调试信息
-    if (databaseCache.isOpenDebugMode) {
-        NSLog(@"lgDB_UpdateData == typeAccordingProperty == %@",typeAccordingProperty);
-        NSLog(@"lgDB_UpdateData == typeUpdateProperty == %@",typeUpdateProperty);
-        NSLog(@"lgDB_UpdateData == typeAccordingValue == %@",typeAccordingValue);
-        NSLog(@"lgDB_UpdateData == typeUpdateValue == %@",typeUpdateValue);
-    }
+//    ///关键调试信息
+//    if (databaseCache.isOpenDebugMode) {
+//        NSLog(@"lgDB_UpdateData == typeAccordingProperty == %@",typeAccordingProperty);
+//        NSLog(@"lgDB_UpdateData == typeUpdateProperty == %@",typeUpdateProperty);
+//        NSLog(@"lgDB_UpdateData == typeAccordingValue == %@",typeAccordingValue);
+//        NSLog(@"lgDB_UpdateData == typeUpdateValue == %@",typeUpdateValue);
+//    }
     
-    ///key类型与Value类型必须要一一对应
-    if (![typeAccordingProperty containsString:typeAccordingValue]) {
-        NSLog(@"lgDB_UpdateData == failure ==> [typeAccordingProperty != typeAccordingValue]");return;
-    }
-    if (![typeUpdateProperty containsString:typeUpdateValue]) {
-        NSLog(@"lgDB_UpdateData == failure ==> [typeUpdateProperty != typeUpdateValue]");return;
-    }
+//    ///key类型与Value类型必须要一一对应
+//    if (![typeAccordingProperty containsString:typeAccordingValue]) {
+//        NSLog(@"lgDB_UpdateData == failure ==> [typeAccordingProperty != typeAccordingValue]");return;
+//    }
+//    if (![typeUpdateProperty containsString:typeUpdateValue]) {
+//        NSLog(@"lgDB_UpdateData == failure ==> [typeUpdateProperty != typeUpdateValue]");return;
+//    }
     
     ///key对应数据库类型
     NSString *DBTypeAccording = nil;

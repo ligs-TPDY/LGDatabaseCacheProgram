@@ -176,6 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithURL:(NSURL * _Nullable)url flags:(int)openFlags vfs:(NSString * _Nullable)vfsName;
 
+///这里包含类方法和对象方法来初始化。内部的初始化方法需要细细研究。
+///#############################################init_end#######################################################################
+
 /** Returns the Class of 'FMDatabase' subclass, that will be used to instantiate database object.
  
  Subclasses can override this method to return specified Class of 'FMDatabase' subclass.
@@ -192,7 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)close;
 
 /** Interupt pending database operation. */
-///中断挂起的数据库操作。
+///中断挂起数据库操作。
 - (void)interrupt;
 
 ///-----------------------------------------------
