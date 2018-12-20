@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-///数据库名字
-extern NSString * const CACHEUSER;
 ///缓存当前APP版本号，用于数据库表的升级
 extern NSString * const CACHE_APPVERSION;
 
@@ -36,6 +34,10 @@ typedef NS_ENUM(NSInteger,SortWay)
     是否使用调试模式（调试模式日志打印较为详细）
  */
 - (void)setDebugMode:(BOOL)isOpenDebugMode;
+/**
+    切换数据库路径，存在则切换，不存在则创建并切换
+ */
+- (void)setDBWayWithName:(NSString *)dbName;
 
 
 #pragma mark - --插入新数据--
@@ -68,7 +70,5 @@ typedef NS_ENUM(NSInteger,SortWay)
                        updateKeyword:(NSString *)updateKeyword///待更新值的key
                          updateValue:(NSObject *)updateValue///待更新的值
                               result:(void (^)(BOOL isSuc))result;
-
-
 
 @end

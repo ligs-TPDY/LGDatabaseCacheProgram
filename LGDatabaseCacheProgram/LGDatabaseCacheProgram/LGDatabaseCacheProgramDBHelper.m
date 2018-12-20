@@ -11,7 +11,6 @@
 #import <objc/runtime.h> ///包含对类、成员变量、属性、方法的操作
 //#import <objc/message.h> ///包含消息机制
 
-NSString * const CACHEUSER = @"Cache_User.db";
 ///缓存当前APP版本号，用于数据库表的升级
 NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
 
@@ -46,20 +45,33 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
 {
     _isOpenDebugMode = isOpenDebugMode;
 }
+/**
+    切换数据库路径，存在则切换，不存在则创建并切换
+ */
+- (void)setDBWayWithName:(NSString *)dbName
+{
+    ///在沙盒的Library/Caches目录下创建用户数据库。
+    NSArray*paths=NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES);
+    NSString*path=[paths objectAtIndex:0];
+    NSString *db = [path stringByAppendingPathComponent:dbName];
+    _queue = [FMDatabaseQueue databaseQueueWithPath:db];
+    if (_queue) {
+        NSLog(@"数据库打开成功：%@",db);
+    }
+}
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        ///在沙盒的Library/Caches目录下创建用户数据库。
-        NSArray*paths=NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES);
-        NSString*path=[paths objectAtIndex:0];
-        NSString *db = [path stringByAppendingPathComponent:CACHEUSER];
-        _queue = [FMDatabaseQueue databaseQueueWithPath:db];
+        ///默认数据设置
         _max_CacheNunber = 300;
+        [self setDBWayWithName:@"Cache_Default.db"];
     }
     return self;
 }
-/**
+#pragma mark - --基础方法--
+/** 升级数据库
     modelName:model名字
     suc:回调
  */
@@ -68,91 +80,92 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                        fai:(void (^)(void))fai;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [databaseCache.queue inDatabase:^(FMDatabase *db) {
-            
-            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-            //当前app版本号
-            NSDictionary * infoDictionary = [[NSBundle mainBundle] infoDictionary];
-            NSString * app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-            //缓存app版本号
-            NSString *cache_App_Version = [userDefaults objectForKey:CACHE_APPVERSION];
-            
-            if (cache_App_Version == nil) {///安装APP
-                ///新建表格
-                [self creatTableWithModelName:modelName suc:^{
-                    [userDefaults setObject:app_Version forKey:CACHE_APPVERSION];
-                    [userDefaults synchronize];
-                    suc();
-                } fai:^{fai();}];
-            }else if (![app_Version isEqualToString:cache_App_Version]){//升级APP
-                {
-                    //表名
-                    NSString *tableName = [NSString stringWithFormat:@"%@",modelName];
-                    NSArray *arrayForPropertyNames = [databaseCache getAllPropertyNames:modelName];
-                    NSArray *arrayForDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
-                    BOOL ADD_SUC = YES;
-                    {//增加新增字段
-                        for (int i=0; i<arrayForPropertyNames.count; i++) {
-                            NSString *pro = arrayForPropertyNames[i];
-                            if (![db columnExists:pro inTableWithName:tableName]){///判读字段是否存在
-                                NSString *alertStr = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@",tableName,pro, arrayForDBPropertyType[i]];
-                                BOOL result = [db executeUpdate:alertStr];
-                                if (result) {NSLog(@"插入字段%@成功",pro);}
-                                else{ADD_SUC = NO;NSLog(@"插入字段%@失败",pro);}
-                            }
-                        }
-                    }
-                    BOOL DROP_SUC = YES;
-                    {///删除多余字段
-                        /**
-                         sqlite> create table D_BrandService(id int);
-                         sqlite> alter table D_BrandService add column a int default 0;
-                         sqlite> create table tmp as select id from D_BrandService;
-                         sqlite> drop table D_BrandService;
-                         sqlite> alter table tmp rename to D_BrandService;
-                         目前SQLITE版本中ALTER TABLE不支持DROP COLUMN，只有RENAME 和ADD
-                         */
-                        NSMutableString *copySQL = [NSMutableString stringWithFormat:@"create table tmp as select RetrievalId"];
-                        for (int i=0; i<arrayForPropertyNames.count; i++) {
-                            NSString *pro = arrayForPropertyNames[i];
-                            [copySQL appendFormat:@",%@",pro];
-                        }
-                        [copySQL appendFormat:@" from %@",modelName];
-                        BOOL copyResult = [db executeUpdate:copySQL];
-                        if (copyResult) {
-                            NSLog(@"copy%@成功",modelName);
-                        }else{DROP_SUC = NO;NSLog(@"copy%@失败",modelName);}
-                        
-                        NSMutableString *dropSQL = [NSMutableString stringWithFormat:@"drop table %@",modelName];
-                        BOOL dropResult = [db executeUpdate:dropSQL];
-                        if (dropResult) {
-                            NSLog(@"drop%@成功",modelName);
-                            dispatch_async(dispatch_get_main_queue(), ^{suc();});
-                        }else{DROP_SUC = NO;NSLog(@"drop%@失败",modelName);}
-                        
-                        NSMutableString *renameSQL = [NSMutableString stringWithFormat:@"alter table tmp rename to %@",modelName];
-                        BOOL renameResult = [db executeUpdate:renameSQL];
-                        if (renameResult) {
-                            NSLog(@"rename%@成功",modelName);
-                            dispatch_async(dispatch_get_main_queue(), ^{suc();});
-                        }else{DROP_SUC = NO;NSLog(@"rename%@失败",modelName);}
-                    }
-                    if (ADD_SUC && DROP_SUC) {
+    if (modelName != nil && modelName.length != 0) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [databaseCache.queue inDatabase:^(FMDatabase *db) {
+                //缓存app版本号
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                NSString *cache_App_Version = [userDefaults objectForKey:CACHE_APPVERSION];
+                
+                //当前app版本号
+                NSDictionary * infoDictionary = [[NSBundle mainBundle] infoDictionary];
+                NSString * app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+                
+                if (cache_App_Version == nil) {///安装APP
+                    [self creatTableWithModelName:modelName suc:^{///新建表格
                         [userDefaults setObject:app_Version forKey:CACHE_APPVERSION];
                         [userDefaults synchronize];
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            suc();
-                        });
-                    }else{
-                        dispatch_async(dispatch_get_main_queue(), ^{fai();});
+                        suc();
+                    } fai:^{fai();}];
+                }else if (![app_Version isEqualToString:cache_App_Version]){//升级APP
+                    {
+                        //表名
+                        NSString *tableName = [NSString stringWithFormat:@"%@",modelName];
+                        NSArray *arrayForPropertyNames = [databaseCache getAllPropertyNames:modelName];
+                        NSArray *arrayForDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
+                        BOOL ADD_SUC = YES;
+                        {//增加新增字段
+                            for (int i=0; i<arrayForPropertyNames.count; i++) {
+                                NSString *pro = arrayForPropertyNames[i];
+                                if (![db columnExists:pro inTableWithName:tableName]){///判读字段是否存在
+                                    NSString *alertStr = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@ %@",tableName,pro, arrayForDBPropertyType[i]];
+                                    BOOL result = [db executeUpdate:alertStr];
+                                    if (result) {NSLog(@"插入字段%@成功",pro);}
+                                    else{ADD_SUC = NO;NSLog(@"插入字段%@失败",pro);}
+                                }
+                            }
+                        }
+                        BOOL DROP_SUC = YES;
+                        {///删除多余字段
+                            /**
+                             sqlite> create table D_BrandService(id int);
+                             sqlite> alter table D_BrandService add column a int default 0;
+                             sqlite> create table tmp as select id from D_BrandService;
+                             sqlite> drop table D_BrandService;
+                             sqlite> alter table tmp rename to D_BrandService;
+                             目前SQLITE版本中ALTER TABLE不支持DROP COLUMN，只有RENAME 和ADD
+                             */
+                            NSMutableString *copySQL = [NSMutableString stringWithFormat:@"create table tmp as select RetrievalId"];
+                            for (int i=0; i<arrayForPropertyNames.count; i++) {
+                                NSString *pro = arrayForPropertyNames[i];
+                                [copySQL appendFormat:@",%@",pro];
+                            }
+                            [copySQL appendFormat:@" from %@",modelName];
+                            BOOL copyResult = [db executeUpdate:copySQL];
+                            if (copyResult) {
+                                NSLog(@"copy%@成功",modelName);
+                            }else{DROP_SUC = NO;NSLog(@"copy%@失败",modelName);}
+                            
+                            NSMutableString *dropSQL = [NSMutableString stringWithFormat:@"drop table %@",modelName];
+                            BOOL dropResult = [db executeUpdate:dropSQL];
+                            if (dropResult) {
+                                NSLog(@"drop%@成功",modelName);
+                                dispatch_async(dispatch_get_main_queue(), ^{suc();});
+                            }else{DROP_SUC = NO;NSLog(@"drop%@失败",modelName);}
+                            
+                            NSMutableString *renameSQL = [NSMutableString stringWithFormat:@"alter table tmp rename to %@",modelName];
+                            BOOL renameResult = [db executeUpdate:renameSQL];
+                            if (renameResult) {
+                                NSLog(@"rename%@成功",modelName);
+                                dispatch_async(dispatch_get_main_queue(), ^{suc();});
+                            }else{DROP_SUC = NO;NSLog(@"rename%@失败",modelName);}
+                        }
+                        if (ADD_SUC && DROP_SUC) {
+                            [userDefaults setObject:app_Version forKey:CACHE_APPVERSION];
+                            [userDefaults synchronize];
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                suc();
+                            });
+                        }else{
+                            dispatch_async(dispatch_get_main_queue(), ^{fai();});
+                        }
                     }
+                }else{//表存在且不用升级
+                    dispatch_async(dispatch_get_main_queue(), ^{suc();});
                 }
-            }else{//正常使用中
-                dispatch_async(dispatch_get_main_queue(), ^{suc();});
-            }
-        }];
-    });
+            }];
+        });
+    }
 }
 ///创建当前用户对应的表格
 + (void)creatTableWithModelName:(NSString *)modelName
@@ -180,22 +193,24 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
         }];
     });
 }
-///插入数据（增加数据）
+#pragma mark - --插入数据（增加数据）--
 + (void)lgDB_InsertDataWithModelName:(NSString *)modelName
                           sourceData:(NSArray *)arrayForData
                               result:(void (^)(BOOL isSuc))result;
 {
     LGDatabaseCacheProgramDBHelper *databaseCache = [LGDatabaseCacheProgramDBHelper sharedDatabaseCacheProgramDBHelper];
     ///参数有效性检测
-    if (arrayForData != nil && arrayForData.count != 0 && modelName!= nil && modelName.length != 0) {
+    if (arrayForData != nil && arrayForData.count != 0 && modelName != nil && modelName.length != 0) {
+        //插入数据前的表格处理
         [LGDatabaseCacheProgramDBHelper upDBTableModelName:modelName  suc:^{
+            ///全局队列异步处理任务
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [databaseCache.queue inDatabase:^(FMDatabase *db) {
                     NSInteger arrayForDataCount = arrayForData.count;
                     NSArray *arrayForDBPropertyType = [databaseCache getModelPropertyTypeForDB:modelName];
                     NSArray *arrayForPropertyName = [databaseCache getAllPropertyNames:modelName];
-                    int count = 0;
                     NSMutableArray *markBlobIndex = [[NSMutableArray alloc]init];
+                    int count = 0;
                     
                     for (NSInteger i = arrayForDataCount-1; i>=0; i--) {
                         
@@ -205,8 +220,10 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                         NSArray *arrayForPropertyValues = [databaseCache useModelPropertyNameGetValues:model];
                         
                         NSMutableString *insertSQL = [NSMutableString stringWithFormat:@"insert into %@ ",modelName];
-                        if (arrayForPropertyName.count == arrayForPropertyValues.count && arrayForPropertyName.count == arrayForDBPropertyType.count)
+                        if (arrayForPropertyName.count == arrayForPropertyValues.count
+                            && arrayForPropertyName.count == arrayForDBPropertyType.count)
                         {
+                            ///insert into formName (userName,userAge,userGrade,userOtherInformmation,specialUI,specialUI2)
                             for (int i=0; i<arrayForPropertyName.count; i++) {
                                 if (i==arrayForPropertyName.count-1) {
                                     [insertSQL appendFormat:@",%@)",arrayForPropertyName[i]];
@@ -216,8 +233,9 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                                     [insertSQL appendFormat:@",%@",arrayForPropertyName[i]];
                                 }
                             }
-                            
+                            ///insert into formName (userName,userAge,userGrade,userOtherInformmation,specialUI,specialUI2) values
                             [insertSQL appendFormat:@" values "];
+                            ///insert into formName (userName,userAge,userGrade,userOtherInformmation,specialUI,specialUI2) values ('小明',100,'[\n  \"100\",\n  \"200\"\n]','{\n  \"add\" : \"中国长白山密林屯松崽子\"\n}',?,?)
                             for (int j=0; j<arrayForPropertyValues.count; j++) {
                                 if (j==arrayForPropertyValues.count-1) {///最后一个
                                     if ([arrayForDBPropertyType[j] isEqualToString:@"text"]) {
@@ -249,17 +267,18 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                                 }
                             }
                         }
-                        NSMutableString *mutStrBlob = [[NSMutableString alloc]init];
-                        for (int n = 0; n<markBlobIndex.count; n++) {
-                            NSInteger index = [[markBlobIndex objectAtIndex:n] integerValue];
-                            if (index < arrayForPropertyValues.count) {
-                                if (n!=markBlobIndex.count-1) {
-                                    [mutStrBlob appendFormat:@"%@,",arrayForPropertyValues[index]];
-                                }else{
-                                    [mutStrBlob appendFormat:@"%@",arrayForPropertyValues[index]];
-                                }
-                            }
-                        }
+                        ///收集自定义对象
+//                        NSMutableString *mutStrBlob = [[NSMutableString alloc]init];
+//                        for (int n = 0; n<markBlobIndex.count; n++) {
+//                            NSInteger index = [[markBlobIndex objectAtIndex:n] integerValue];
+//                            if (index < arrayForPropertyValues.count) {
+//                                if (n!=markBlobIndex.count-1) {
+//                                    [mutStrBlob appendFormat:@"%@,",arrayForPropertyValues[index]];
+//                                }else{
+//                                    [mutStrBlob appendFormat:@"%@",arrayForPropertyValues[index]];
+//                                }
+//                            }
+//                        }
                         BOOL result = NO;
                         if (markBlobIndex.count == 1) {
                             NSInteger index = [[markBlobIndex objectAtIndex:0] integerValue];
@@ -274,6 +293,7 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                             count ++;
                         }
                     }
+                    
                     if (count == arrayForDataCount) {
                         NSLog(@"lgDB_InsertData == success == [%@]",modelName);
                         FMResultSet *results = [db executeQuery:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@",modelName]];
@@ -452,8 +472,10 @@ NSString * const CACHE_APPVERSION = @"LG_Cache_AppVersion";
                 if (sortWay == SortWay_Desc) {//降序
                     maxOrMin = @"max";
                 }
-                NSString *SQL = [NSString stringWithFormat:@"select %@(%@) from %@",maxOrMin,keyword,modelName];
-                finallySearchValue = [db intForQuery:SQL];
+                if (maxOrMin != nil) {
+                    NSString *SQL = [NSString stringWithFormat:@"select %@(%@) from %@",maxOrMin,keyword,modelName];
+                    finallySearchValue = [db intForQuery:SQL];
+                }
             }
             
             if (searchValue != 0) {///如果设置了值，则以设置值为准

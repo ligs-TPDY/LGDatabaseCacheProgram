@@ -20,6 +20,7 @@
 		A656969C21927A80008DD21C /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = A656969721927A80008DD21C /* FMResultSet.m */; };
 		A656969F21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A656969E21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m */; };
 		A65696A221927D9B008DD21C /* LGDatabaseCacheProgramModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A65696A121927D9B008DD21C /* LGDatabaseCacheProgramModel.m */; };
+		A677D6AA21CB91710000DAC5 /* NSData+UTF8.m in Sources */ = {isa = PBXBuildFile; fileRef = A677D6A921CB91710000DAC5 /* NSData+UTF8.m */; };
 		A6D5148D21B66435004D6078 /* headFileConnection.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A6D5148C21B66435004D6078 /* headFileConnection.jpg */; };
 		A6D5148F21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */; };
 		A6D5149121B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */; };
@@ -58,6 +59,10 @@
 		A656969E21927CC1008DD21C /* LGDatabaseCacheProgramDBHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LGDatabaseCacheProgramDBHelper.m; sourceTree = "<group>"; };
 		A65696A021927D9B008DD21C /* LGDatabaseCacheProgramModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LGDatabaseCacheProgramModel.h; sourceTree = "<group>"; };
 		A65696A121927D9B008DD21C /* LGDatabaseCacheProgramModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LGDatabaseCacheProgramModel.m; sourceTree = "<group>"; };
+		A677D6A221CB8EE40000DAC5 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		A677D6A421CB8F120000DAC5 /* libiconv.2.4.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.4.0.tbd; path = usr/lib/libiconv.2.4.0.tbd; sourceTree = SDKROOT; };
+		A677D6A821CB91710000DAC5 /* NSData+UTF8.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+UTF8.h"; sourceTree = "<group>"; };
+		A677D6A921CB91710000DAC5 /* NSData+UTF8.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+UTF8.m"; sourceTree = "<group>"; };
 		A6D5148C21B66435004D6078 /* headFileConnection.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = headFileConnection.jpg; sourceTree = "<group>"; };
 		A6D5148E21B673AB004D6078 /* typedef#enum#NS_ENUM#NS_OPTIONS#移位.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "typedef#enum#NS_ENUM#NS_OPTIONS#移位.m"; sourceTree = "<group>"; };
 		A6D5149021B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m"; sourceTree = "<group>"; };
@@ -117,6 +122,8 @@
 				A656968121927A41008DD21C /* LaunchScreen.storyboard */,
 				A656968421927A41008DD21C /* Info.plist */,
 				A656968521927A41008DD21C /* main.m */,
+				A677D6A821CB91710000DAC5 /* NSData+UTF8.h */,
+				A677D6A921CB91710000DAC5 /* NSData+UTF8.m */,
 			);
 			path = LGDatabaseCacheProgram;
 			sourceTree = "<group>";
@@ -158,6 +165,8 @@
 		A6E3CA9821B90F8600BC3957 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A677D6A421CB8F120000DAC5 /* libiconv.2.4.0.tbd */,
+				A677D6A221CB8EE40000DAC5 /* libiconv.tbd */,
 				A6E3CA9921B90F8600BC3957 /* libsqlite3.0.tbd */,
 			);
 			name = Frameworks;
@@ -242,6 +251,7 @@
 				A656967B21927A40008DD21C /* ViewController.m in Sources */,
 				A656969A21927A80008DD21C /* FMDatabasePool.m in Sources */,
 				A656968621927A41008DD21C /* main.m in Sources */,
+				A677D6AA21CB91710000DAC5 /* NSData+UTF8.m in Sources */,
 				A65696A221927D9B008DD21C /* LGDatabaseCacheProgramModel.m in Sources */,
 				A656969B21927A80008DD21C /* FMDatabaseQueue.m in Sources */,
 				A6D5149121B677E4004D6078 /* NS_ASSUME_NONNULL_BEGIN#NS_ASSUME_NONNULL_END.m in Sources */,
@@ -400,6 +410,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = TP.LGDatabaseCacheProgram;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -416,6 +430,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = TP.LGDatabaseCacheProgram;
 				PRODUCT_NAME = "$(TARGET_NAME)";
